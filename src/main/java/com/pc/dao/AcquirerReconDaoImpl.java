@@ -13,29 +13,31 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.pc.mapper.AcquirerSettlementMapper;
-import com.pc.model.IdCardNumberPair;
+import com.pc.model.AcquirerRecon;
 
 /**
  * @author gino.q
  *
  */
-@Repository
-@Qualifier("acquirerDao")
-public class AcquirerDaoImpl implements AcquirerDao {
-	
-	private static final Logger logger = LogManager.getLogger(AcquirerDaoImpl.class);
 
+@Repository
+@Qualifier("acquirerReconDao")
+public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
+
+	private static final Logger logger = LogManager.getLogger(AcquirerReconDaoImpl.class);
+	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-
+	
 	@Override
-	public List<IdCardNumberPair> getIdCardMappingList(String[] merchantIds, String startDate, String endDate) {
+	public List<AcquirerRecon> getList(String[] merchantIds, String startDate, String endDate) {
+		
 		logger.info("Looking for match...");
 		logger.debug("Merchant IDs: "+Arrays.toString(merchantIds));
 		logger.debug("Start Date: "+startDate);
 		logger.debug("End Date: "+endDate);
 		
-		final String SQL = "SELECT a.id, a.card_number old_card_number, b.card_number, a.card_currency old_card_currency, IF(b.card_currency IS NULL or b.card_currency = '', 'AUD', b.card_currency) card_currency"
+		final String SQL = "SELECT a.id acquirer_id, a.card_number acquirer_card_number, b.card_number settlement_card_number, a.card_currency acquirer_card_currency, IF(b.card_currency IS NULL or b.card_currency = '', 'AUD', b.card_currency) settlement_card_currency"
 				+ " FROM acquirertransaction a, settlement_info b "+
 			    " WHERE a.merchant_id = b.merchant_id "+
 				" AND a.terminal_id = b.terminal_id "+
@@ -52,7 +54,7 @@ public class AcquirerDaoImpl implements AcquirerDao {
 		params.addValue("end_date", endDate);
 		
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());		
-		List<IdCardNumberPair> list = template.query(SQL, params, new AcquirerSettlementMapper());
+		List<AcquirerRecon> list = template.query(SQL, params, new AcquirerSettlementMapper());
 		
 		logger.info("Matches found: "+list.size());
 				
@@ -60,14 +62,44 @@ public class AcquirerDaoImpl implements AcquirerDao {
 	}
 
 	@Override
-	public int updateAcquirerCardNumber(IdCardNumberPair p) {	
-		logger.debug("Updating card_number and card_currency for id='{}'", p.getId());
-		logger.debug("Card number from '{}' to '{}'", p.getOldCardNumber(), p.getCardNumber());
-		logger.debug("Card currency from '{}' to '{}'", p.getOldCardCurrency(), p.getCardCurrency());
+	public AcquirerRecon get(long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long update(long id, AcquirerRecon t) {
+		logger.debug("Updating card_number and card_currency for id='{}'", id);
+		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
+		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ?";
-		int rowsUpdated = jdbcTemplate.update(SQL, new Object[] {p.getCardNumber(), p.getCardCurrency(), p.getId()});
-		logger.info("Row updated: "+rowsUpdated);
+		int rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), id});
+		logger.info("Row updated: "+rowsUpdated);		
 		return rowsUpdated;
 	}
+
+	@Override
+	public long insertAll(List<AcquirerRecon> list) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long insert(AcquirerRecon t) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long deleteAll() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long delete(long id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}	
 
 }

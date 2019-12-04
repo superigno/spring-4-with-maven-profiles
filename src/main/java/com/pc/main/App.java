@@ -14,8 +14,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 
 import com.pc.configuration.ApplicationConfig;
+import com.pc.model.AcquirerRecon;
 import com.pc.model.AppProperties;
-import com.pc.model.IdCardNumberPair;
 import com.pc.service.ReconService;
 
 /**
@@ -67,10 +67,10 @@ public class App {
 			    	file.delete();
 			    }
 				
-				List<IdCardNumberPair> list = reconService.getIdCardMappingList(merchantIds, startDate, endDate);
+				List<AcquirerRecon> list = reconService.getIdCardMappingList(merchantIds, startDate, endDate);
 				int rowsUpdated = 0;
-				for (IdCardNumberPair pair : list) {			
-					rowsUpdated += reconService.updateAcquirerCardNumber(pair);
+				for (AcquirerRecon ar : list) {			
+					rowsUpdated += reconService.updateAcquirerCardNumber(ar);
 				}	
 				logger.info("Total rows updated: "+rowsUpdated);
 				logger.info("Done");

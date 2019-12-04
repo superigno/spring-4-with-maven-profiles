@@ -19,8 +19,8 @@ import com.pc.model.SettlementInfo;
  *
  */
 @Repository
-@Qualifier("settlementInfoDao")
-public class SettlementDaoImpl implements SettlementDao {
+@Qualifier("settlementDao")
+public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 
 	private static final Logger logger = LogManager.getLogger(SettlementDaoImpl.class);
 	private static final String INSERT_SQL = "INSERT INTO settlement_info (merchant_id, terminal_id, merchant_ref, terminal_transaction_time, acquirer_time, trx_type, base_currency, base_amount, trx_currency, trx_amount, exchange_rate, response_code, response_message, authorisation_code, RRN, card_number, card_currency, card_type, gross_margin, net_bank_commi, net_pc_commi, net_merchant_commi, scheme_settle_rate, scheme_settle_amount, settle_time, repayment_fee, originator, non_dcc_reason_code, card_number_length, rate_program, trx_id) "
@@ -32,7 +32,7 @@ public class SettlementDaoImpl implements SettlementDao {
 	JdbcTemplate jdbcTemplate;
 
 	@Override
-	public void insert(SettlementInfo info) {
+	public long insert(SettlementInfo info) {
 		
 		Object[] params = new Object[] { info.getMerchantId(), info.getTerminalId(), info.getMerchantRef(), info.getTerminalTransactionTime(), info.getAcquirerTime(), info.getTrxType(),
 				info.getBaseCurrency(), info.getBaseAmount(), info.getTrxCurrency(), info.getTrxAmount(), info.getExchangeRate(), info.getResponseCode(), info.getResponseMessage(), 
@@ -40,13 +40,13 @@ public class SettlementDaoImpl implements SettlementDao {
 				info.getNetMerchantCommi(), info.getSchemeSettlementRate(), info.getSchemeSettlementAmount(), info.getSettleTime(), info.getRepaymentFee(), info.getOriginator(), info.getNonDccReasonCode(), 
 				info.getCardNumberLength(), info.getRateProgram(), info.getTrxId()};
 		
-		int rowsInserted = jdbcTemplate.update(INSERT_SQL, params);
+		long rowsInserted = jdbcTemplate.update(INSERT_SQL, params);
 		logger.info("Rows inserted: " + rowsInserted);
+		return rowsInserted;
 	}
 
 	@Override
-	public void batchInsert(List<SettlementInfo> list) {
-		
+	public long insertAll(List<SettlementInfo> list) {
 		logger.info("Inserting to database...");
 		
 		int[][] updateCounts = jdbcTemplate.batchUpdate(INSERT_SQL, list, BATCH_INSERT_LIMIT,
@@ -87,7 +87,7 @@ public class SettlementDaoImpl implements SettlementDao {
 				});
 		
 		int batchCtr = 1;
-		int totalRowsInserted = 0;
+		long totalRowsInserted = 0;
 		for (int[] rows : updateCounts ) {
 			int insertedCtr = 0;			
 			logger.info("Batch: "+batchCtr);
@@ -102,14 +102,40 @@ public class SettlementDaoImpl implements SettlementDao {
 		}		
 		
 		logger.info("Total rows inserted: "+totalRowsInserted);
+		return totalRowsInserted;
 	}
 
 	@Override
-	public void cleanupTable() {
+	public long deleteAll() {
 		logger.info("Cleaning up table...");
 		final String SQL = "DELETE FROM settlement_info;";
-		int rowsDeleted = jdbcTemplate.update(SQL);		
+		long rowsDeleted = jdbcTemplate.update(SQL);		
 		logger.info("Total rows deleted: "+rowsDeleted);
-	}	
+		return rowsDeleted;
+	}
+	
+	@Override
+	public List<SettlementInfo> getList(String[] merchantIds, String startDate, String endDate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SettlementInfo get(long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long update(long id, SettlementInfo t) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long delete(long id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}		
 
 }

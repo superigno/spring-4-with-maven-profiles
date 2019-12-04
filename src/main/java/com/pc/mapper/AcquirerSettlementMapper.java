@@ -5,23 +5,23 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.pc.model.IdCardNumberPair;
+import com.pc.model.AcquirerRecon;
 
 /**
  * @author gino.q
  *
  */
-public class AcquirerSettlementMapper implements RowMapper<IdCardNumberPair> {
+public class AcquirerSettlementMapper implements RowMapper<AcquirerRecon> {
 
 	@Override
-	public IdCardNumberPair mapRow(ResultSet rs, int rowNum) throws SQLException {
-		IdCardNumberPair pair = new IdCardNumberPair();
-		pair.setId(rs.getString("id"));
-		pair.setOldCardNumber(rs.getString("old_card_number"));
-		pair.setCardNumber(rs.getString("card_number"));
-		pair.setOldCardCurrency(rs.getString("old_card_currency"));
-		pair.setCardCurrency(rs.getString("card_currency"));
-		return pair;
+	public AcquirerRecon mapRow(ResultSet rs, int rowNum) throws SQLException {
+		AcquirerRecon recon = new AcquirerRecon();
+		recon.setAcquirerId(rs.getLong("acquirer_id"));
+		recon.setAcquirerCardNumber(rs.getString("acquirer_card_number"));
+		recon.setSettlementCardNumber(rs.getString("settlement_card_number"));
+		recon.setAcquirerCardCurrency(rs.getString("acquirer_card_currency"));
+		recon.setSettlementCardCurrency(rs.getString("settlement_card_currency"));
+		return recon;
 	}
 	
 }
