@@ -1,6 +1,8 @@
 package com.pc.dao;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,15 +39,24 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		logger.debug("Start Date: "+startDate);
 		logger.debug("End Date: "+endDate);
 		
-		final String SQL = "SELECT a.id acquirer_id, a.card_number acquirer_card_number, b.card_number settlement_card_number, a.card_currency acquirer_card_currency, IF(b.card_currency IS NULL or b.card_currency = '', 'AUD', b.card_currency) settlement_card_currency"
-				+ " FROM acquirertransaction a, settlement_info b "+
-			    " WHERE a.merchant_id = b.merchant_id "+
-				" AND a.terminal_id = b.terminal_id "+
-				" AND a.base_amount = b.base_amount "+
-				" AND a.authorisation_code = b.authorisation_code "+
-				" AND a.client_time = b.terminal_transaction_time "+
-				" AND a.merchant_id IN (:merchant_id) "+
-				" AND a.settle_time BETWEEN :start_date AND :end_date";
+		final String SQL = "SELECT a.id acquirer_id, "
+				+ "a.card_number acquirer_card_number, "
+				+ "b.card_number settlement_card_number, "
+				+ "a.card_currency acquirer_card_currency, "
+				+ "IF(b.card_currency IS NULL or b.card_currency = '', 'AUD', b.card_currency) settlement_card_currency, "
+				+ " b.merchant_id, "  
+				+ "	b.terminal_id, "  
+				+ "	b.base_amount, " 
+				+ "	b.rrn, " 
+				+ " b.trx_id "
+				+ " FROM acquirertransaction a, settlementfile b "
+			    + " WHERE a.merchant_id = b.merchant_id "
+			    + " AND a.terminal_id = b.terminal_id "
+			    + " AND a.base_amount = b.base_amount "
+			    + " AND a.authorisation_code = b.authorisation_code "
+			    + " AND DATE(a.client_time) = DATE(b.terminal_transaction_time) "
+			    + " AND a.merchant_id IN (:merchant_id) "
+			    + " AND a.settle_time BETWEEN :start_date AND :end_date";
 		
 		List<String> ids = Arrays.asList(merchantIds);		
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -68,14 +79,29 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	}
 
 	@Override
-	public long update(long id, AcquirerRecon t) {
-		logger.debug("Updating card_number and card_currency for id='{}'", id);
+	public long update(AcquirerRecon t) {
+		
+		logger.debug("Updating card_number and card_currency for id='{}'",t.getAcquirerId());
 		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
 		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
+		
 		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ?";
-		int rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), id});
-		logger.info("Row updated: "+rowsUpdated);		
+		int rowsUpdated = 0;
+		
+		try {
+			rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId()});
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		
+		logger.info("Row updated: "+rowsUpdated);
+		
+		if (rowsUpdated > 0) {
+			log(t);
+		}
+		
 		return rowsUpdated;
+		
 	}
 
 	@Override
@@ -100,6 +126,20 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	public long delete(long id) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public void log(AcquirerRecon t) {
+		logger.info("Logging transaction...");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String d = format.format(new Date());
+		try {
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d});
+		} catch (Exception e) {
+			logger.error(e);
+		}
+				
 	}	
 
 }

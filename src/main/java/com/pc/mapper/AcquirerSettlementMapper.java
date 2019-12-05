@@ -21,6 +21,11 @@ public class AcquirerSettlementMapper implements RowMapper<AcquirerRecon> {
 		recon.setSettlementCardNumber(rs.getString("settlement_card_number"));
 		recon.setAcquirerCardCurrency(rs.getString("acquirer_card_currency"));
 		recon.setSettlementCardCurrency(rs.getString("settlement_card_currency"));
+		recon.setMerchantId(rs.getString("merchant_id"));
+		recon.setTerminalId(rs.getString("terminal_id"));
+		recon.setBaseAmount(rs.getString("base_amount"));
+		recon.setRrn(rs.getString("rrn"));
+		recon.setTrxId(rs.getString("trx_id"));
 		return recon;
 	}
 	

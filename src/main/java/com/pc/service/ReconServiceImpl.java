@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.pc.dao.ReconDao;
 import com.pc.model.AcquirerRecon;
+import com.pc.model.SchemeSettleRecon;
 import com.pc.model.SettlementInfo;
 import com.pc.util.SettlementUtil;
 
@@ -20,8 +22,20 @@ public class ReconServiceImpl implements ReconService {
 
 	@Autowired
 	private ReconDao<AcquirerRecon> acquirerReconDao;
+	
 	@Autowired
 	private ReconDao<SettlementInfo> settlementDao;
+	
+	@Autowired
+	private ReconDao<SchemeSettleRecon> schemeSettleReconDao;
+	
+	@Autowired
+	@Qualifier("extraPendingCommissionDao")
+	private ReconDao<Object> extraPendingCommissionDao;
+	
+	@Autowired
+	@Qualifier("extraMissingCommissionDao")
+	private ReconDao<Object> extraMissingCommissionDao;
 	
 	@Override
 	public void cleanupSettlementTable() {
@@ -33,15 +47,30 @@ public class ReconServiceImpl implements ReconService {
 		List<SettlementInfo> list = SettlementUtil.getSettlementList(file);	
 		settlementDao.insertAll(list);		
 	}
-	
+	 
 	@Override
-	public List<AcquirerRecon> getIdCardMappingList(String[] merchantIds, String startDate, String endDate) {
+	public List<AcquirerRecon> getAcquirerSettlementMappingList(String[] merchantIds, String startDate, String endDate) {
 		return acquirerReconDao.getList(merchantIds, startDate, endDate);
 	}
 
 	@Override
-	public long updateAcquirerCardNumber(AcquirerRecon p) {
-		return acquirerReconDao.update(p.getAcquirerId(), p);		
+	public long updateAcquirerDetails(AcquirerRecon p) {
+		return acquirerReconDao.update(p);		
 	}
 
+	@Override
+	public long updateSchemeSettlementDetails(SchemeSettleRecon s) {
+		return schemeSettleReconDao.update(s);
+	}
+
+	@Override
+	public long deleteFromExtraPendingCommission(long id) {
+		return extraPendingCommissionDao.delete(id);
+	}
+
+	@Override
+	public long deleteFromExtraMissingCommission(long id) {
+		return extraMissingCommissionDao.delete(id);
+	}	
+	
 }

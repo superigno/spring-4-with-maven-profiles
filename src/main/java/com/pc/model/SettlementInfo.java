@@ -45,13 +45,13 @@ public class SettlementInfo {
 			this.schemeSettlementAmount = !isNullOrEmpty(info[23]) ? Long.parseLong(info[23].replace(".", "")) : 0;
 			this.settleTime = !isNullOrEmpty(info[24]) ? info[24] : null;
 			this.repaymentFee = info[25];
-			this.originator = info[26];
-			this.nonDccReasonCode = info[27];
-			this.cardNumberLength = !isNullOrEmpty(info[28]) ? Long.parseLong(info[28].replace(".", "")) : 0;
-			this.rateProgram = info[29];
-			this.trxId = !isNullOrEmpty(info[30]) ? Long.parseLong(info[30].replace(".", "")) : 0;
+			this.originator = null;
+			this.nonDccReasonCode = info[26];
+			this.cardNumberLength = !isNullOrEmpty(info[27]) ? Long.parseLong(info[27]) : 0;
+			this.rateProgram = info[28];
+			this.trxId = info[29];
 		} catch (IndexOutOfBoundsException e) {
-					
+			
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class SettlementInfo {
 	private String nonDccReasonCode;
 	private long cardNumberLength;
 	private String rateProgram;
-	private long trxId;
+	private String trxId;
 	
 	public String getMerchantId() {
 		return merchantId;
@@ -207,7 +207,7 @@ public class SettlementInfo {
 		return rateProgram;
 	}
 
-	public long getTrxId() {
+	public String getTrxId() {
 		return trxId;
 	}
 

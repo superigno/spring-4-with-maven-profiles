@@ -11,6 +11,11 @@ public class AcquirerRecon {
 	private String settlementCardNumber;
 	private String acquirerCardCurrency;
 	private String settlementCardCurrency;
+	private String merchantId;
+	private String terminalId;
+	private String baseAmount;
+	private String rrn;
+	private String trxId;
 	
 	public long getAcquirerId() {
 		return acquirerId;
@@ -42,5 +47,35 @@ public class AcquirerRecon {
 	public void setSettlementCardCurrency(String settlementCardCurrency) {
 		this.settlementCardCurrency = settlementCardCurrency;
 	}
+	public String getMerchantId() {
+		return merchantId;
+	}
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+	public String getTerminalId() {
+		return terminalId;
+	}
+	public void setTerminalId(String terminalId) {
+		this.terminalId = terminalId;
+	}
+	public String getBaseAmount() {
+		return baseAmount;
+	}
+	public void setBaseAmount(String baseAmount) {
+		this.baseAmount = baseAmount;
+	}
+	public String getRrn() {
+		return rrn;
+	}
+	public void setRrn(String rrn) {
+		this.rrn = rrn;
+	}
+	public String getTrxId() {
+		return trxId;
+	}
+	public void setTrxId(String trxId) {
+		this.trxId = trxId;
+	}	
 
 }

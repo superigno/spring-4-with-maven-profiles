@@ -27,7 +27,7 @@
 	         <AppenderRef ref="rollingFile" />
 	    </Logger>
 	    
-	    <Logger name="org.springframework.jdbc" level="DEBUG" additivity="false">
+	    <Logger name="org.springframework.jdbc" level="OFF" additivity="false">
 	         <AppenderRef ref="console" />
 	         <AppenderRef ref="rollingFile" />
 	    </Logger>
