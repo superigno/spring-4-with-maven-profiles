@@ -68,7 +68,7 @@ public class App {
 				for (File file : files) {
 			    	logger.info("Filename: "+file.getName());	    	
 			    	reconService.insertSettlementFileToDb(file);
-			    	//file.delete();
+			    	file.delete();
 			    }
 				
 				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(merchantIds, startDate, endDate);
