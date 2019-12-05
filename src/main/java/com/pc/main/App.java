@@ -18,6 +18,7 @@ import com.pc.model.AcquirerRecon;
 import com.pc.model.AppProperties;
 import com.pc.model.SchemeSettleRecon;
 import com.pc.service.ReconService;
+import com.pc.util.SettlementUtil;
 
 /**
  * @author gino.q
@@ -59,6 +60,8 @@ public class App {
 			logger.info("Files found: "+files.length);
 			
 			if (files.length > 0) {
+				
+				logger.info("Transaction ID: {}", SettlementUtil.generateNewTransId());
 				
 				reconService.cleanupSettlementTable();
 				

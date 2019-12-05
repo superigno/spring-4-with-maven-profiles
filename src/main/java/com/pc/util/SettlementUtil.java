@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +22,8 @@ public class SettlementUtil {
 	private static final Logger logger = LogManager.getLogger(SettlementUtil.class);
 	private static final String REGEX_PIPE_TRIMMED = "\\s*\\|\\s*";
 	private static final int MANDATORY_PARAM_COUNT = 15;
-
+	private static String transId;
+	
 	public static List<SettlementInfo> getSettlementList(File f) {
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -53,6 +55,18 @@ public class SettlementUtil {
 	private static String[] doParse(String line) {
 		String[] items = line.split(REGEX_PIPE_TRIMMED);
 		return items;
+	}
+	
+	public static String getTransId() {
+		if (transId == null || transId.equals("")) {
+			generateNewTransId();
+		}
+		return transId;
+	}
+	
+	public static String generateNewTransId() {
+		transId = String.format("%06d", new Random().nextInt(999999)); 
+		return transId;
 	}
 
 }

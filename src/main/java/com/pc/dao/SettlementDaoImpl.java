@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Repository;
@@ -19,7 +18,6 @@ import com.pc.model.SettlementInfo;
  *
  */
 @Repository
-@Qualifier("settlementDao")
 public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 
 	private static final Logger logger = LogManager.getLogger(SettlementDaoImpl.class);

@@ -7,12 +7,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.pc.model.SchemeSettleRecon;
+import com.pc.util.SettlementUtil;
 
 /**
  * @author gino.q
@@ -20,7 +20,6 @@ import com.pc.model.SchemeSettleRecon;
  */
 
 @Repository
-@Qualifier("schemeSettleReconDao")
 public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	
 	private static final Logger logger = LogManager.getLogger(SchemeSettleReconDaoImpl.class);
@@ -129,7 +128,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d, SettlementUtil.getTransId()});
 		} catch(Exception e) {
 			logger.error(e);
 		}

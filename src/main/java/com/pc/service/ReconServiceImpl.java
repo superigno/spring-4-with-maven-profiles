@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.pc.dao.ReconDao;
@@ -30,11 +29,9 @@ public class ReconServiceImpl implements ReconService {
 	private ReconDao<SchemeSettleRecon> schemeSettleReconDao;
 	
 	@Autowired
-	@Qualifier("extraPendingCommissionDao")
 	private ReconDao<Object> extraPendingCommissionDao;
 	
 	@Autowired
-	@Qualifier("extraMissingCommissionDao")
 	private ReconDao<Object> extraMissingCommissionDao;
 	
 	@Override

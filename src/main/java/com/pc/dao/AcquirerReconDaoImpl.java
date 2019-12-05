@@ -1,6 +1,7 @@
 package com.pc.dao;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.pc.mapper.AcquirerSettlementMapper;
 import com.pc.model.AcquirerRecon;
+import com.pc.util.SettlementUtil;
 
 /**
  * @author gino.q
@@ -23,7 +24,6 @@ import com.pc.model.AcquirerRecon;
  */
 
 @Repository
-@Qualifier("acquirerReconDao")
 public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 
 	private static final Logger logger = LogManager.getLogger(AcquirerReconDaoImpl.class);
@@ -65,7 +65,13 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		params.addValue("end_date", endDate);
 		
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());		
-		List<AcquirerRecon> list = template.query(SQL, params, new AcquirerSettlementMapper());
+		List<AcquirerRecon> list = new ArrayList<>();
+		
+		try {
+			list = template.query(SQL, params, new AcquirerSettlementMapper());
+		}catch (Exception e) {
+			logger.error(e);
+		}
 		
 		logger.info("Matches found: "+list.size());
 				
@@ -134,8 +140,8 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d});
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d, SettlementUtil.getTransId()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d, SettlementUtil.getTransId()});
 		} catch (Exception e) {
 			logger.error(e);
 		}
