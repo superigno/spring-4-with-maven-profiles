@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.pc.mapper.AcquirerSettlementMapper;
 import com.pc.model.AcquirerRecon;
-import com.pc.util.SettlementUtil;
+import com.pc.util.ReconUtil;
 
 /**
  * @author gino.q
@@ -140,8 +140,8 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d, SettlementUtil.getTransId()});
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d, SettlementUtil.getTransId()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
 		} catch (Exception e) {
 			logger.error(e);
 		}

@@ -18,7 +18,7 @@ import com.pc.model.AcquirerRecon;
 import com.pc.model.AppProperties;
 import com.pc.model.SchemeSettleRecon;
 import com.pc.service.ReconService;
-import com.pc.util.SettlementUtil;
+import com.pc.util.ReconUtil;
 
 /**
  * @author gino.q
@@ -61,33 +61,39 @@ public class App {
 			
 			if (files.length > 0) {
 				
-				logger.info("Transaction ID: {}", SettlementUtil.generateNewTransId());
-				
-				reconService.cleanupSettlementTable();
+				ReconUtil.generateNewTransId();
+				logger.info("Transaction ID: {}", ReconUtil.getTransId());
 				
 				for (File file : files) {
-			    	logger.info("Filename: "+file.getName());	    	
+					
+					ReconUtil.setFileName(file.getName());
+					logger.info("Filename: "+ReconUtil.getFileName());
+					
+					reconService.cleanupSettlementTable();
 			    	reconService.insertSettlementFileToDb(file);
+			    	
+			    	List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(merchantIds, startDate, endDate);
+					int acquirerRowsUpdated = 0;
+					int schemeSettleRowsUpdated = 0;
+					int pendingCommissionDeleted = 0;
+					int missingCommissionDeleted = 0;
+					
+					for (AcquirerRecon ar : list) {			
+						acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
+						SchemeSettleRecon scheme = new SchemeSettleRecon(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), ar.getAcquirerId());
+						schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(scheme);
+						pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());
+						missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(ar.getAcquirerId());					
+					}	
+					
+					logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
+					logger.info("Total Scheme Settlement rows updated: "+schemeSettleRowsUpdated);
+					logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
+					logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);			    	
+			    	
 			    	file.delete();
 			    }
-				
-				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(merchantIds, startDate, endDate);
-				int acquirerRowsUpdated = 0;
-				int schemeSettleRowsUpdated = 0;
-				int pendingCommissionDeleted = 0;
-				int missingCommissionDeleted = 0;
-				
-				for (AcquirerRecon ar : list) {			
-					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
-					SchemeSettleRecon scheme = new SchemeSettleRecon(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), ar.getAcquirerId());
-					schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(scheme);
-					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());
-					missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(ar.getAcquirerId());					
-				}	
-				logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
-				logger.info("Total Scheme Settlement rows updated: "+schemeSettleRowsUpdated);
-				logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
-				logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
+								
 				logger.info("Done");
 			}
 		}

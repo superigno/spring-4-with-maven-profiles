@@ -10,7 +10,7 @@ import com.pc.dao.ReconDao;
 import com.pc.model.AcquirerRecon;
 import com.pc.model.SchemeSettleRecon;
 import com.pc.model.SettlementInfo;
-import com.pc.util.SettlementUtil;
+import com.pc.util.ReconUtil;
 
 /**
  * @author gino.q
@@ -41,7 +41,7 @@ public class ReconServiceImpl implements ReconService {
 
 	@Override
 	public void insertSettlementFileToDb(File file) {
-		List<SettlementInfo> list = SettlementUtil.getSettlementList(file);	
+		List<SettlementInfo> list = ReconUtil.getSettlementList(file);	
 		settlementDao.insertAll(list);		
 	}
 	 

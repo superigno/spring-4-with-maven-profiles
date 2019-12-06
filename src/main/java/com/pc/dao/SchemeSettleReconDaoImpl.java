@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.pc.model.SchemeSettleRecon;
-import com.pc.util.SettlementUtil;
+import com.pc.util.ReconUtil;
 
 /**
  * @author gino.q
@@ -128,7 +128,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d, SettlementUtil.getTransId()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
 		} catch(Exception e) {
 			logger.error(e);
 		}

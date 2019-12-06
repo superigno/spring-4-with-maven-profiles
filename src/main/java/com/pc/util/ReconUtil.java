@@ -17,12 +17,13 @@ import com.pc.model.SettlementInfo;
  * @author gino.q
  *
  */
-public class SettlementUtil {
+public class ReconUtil {
 
-	private static final Logger logger = LogManager.getLogger(SettlementUtil.class);
+	private static final Logger logger = LogManager.getLogger(ReconUtil.class);
 	private static final String REGEX_PIPE_TRIMMED = "\\s*\\|\\s*";
 	private static final int MANDATORY_PARAM_COUNT = 15;
 	private static String transId;
+	private static String fileName;
 	
 	public static List<SettlementInfo> getSettlementList(File f) {
 		FileReader fr = null;
@@ -64,9 +65,16 @@ public class SettlementUtil {
 		return transId;
 	}
 	
-	public static String generateNewTransId() {
-		transId = String.format("%06d", new Random().nextInt(999999)); 
-		return transId;
+	public static void generateNewTransId() {
+		transId = String.format("%06d", new Random().nextInt(999999));
+	}
+
+	public static String getFileName() {
+		return fileName;
+	}
+
+	public static void setFileName(String fileName) {
+		ReconUtil.fileName = fileName;
 	}
 
 }
