@@ -11,7 +11,7 @@ public interface ReconDao<T> {
 	
 	public static final String LOG_SQL = "INSERT INTO settlementreconlog (table_name, table_id, column_name, before_value, after_value, transaction_date, transaction_id, file_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	public List<T> getList(String[] merchantIds, String startDate, String endDate);
+	public List<T> getList(T t);
 	public T get(long id);
 	public long update(T t);
 	public long insertAll(List<T> list);

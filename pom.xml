@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.pc</groupId>
-	<artifactId>hitrate-recon</artifactId>
+	<artifactId>tyro-hitrate-recon</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>hitrate-recon</name>
+	<name>tyro-hitrate-recon</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>

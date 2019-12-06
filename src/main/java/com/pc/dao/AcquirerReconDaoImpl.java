@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.pc.mapper.AcquirerSettlementMapper;
 import com.pc.model.AcquirerRecon;
+import com.pc.model.AppProperties;
 import com.pc.util.ReconUtil;
 
 /**
@@ -31,13 +32,16 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	AppProperties appProperties;
+	
 	@Override
-	public List<AcquirerRecon> getList(String[] merchantIds, String startDate, String endDate) {
+	public List<AcquirerRecon> getList(AcquirerRecon t) {
 		
-		logger.info("Looking for match...");
-		logger.debug("Merchant IDs: "+Arrays.toString(merchantIds));
-		logger.debug("Start Date: "+startDate);
-		logger.debug("End Date: "+endDate);
+		logger.info("Looking for match in acquirertransaction table...");
+		logger.debug("Merchant IDs: "+Arrays.toString(appProperties.getMerchantIds()));
+		logger.debug("Settle Start Date: "+appProperties.getSettlementStartDate());
+		logger.debug("Settle End Date: "+appProperties.getSettlementEndDate());
 		
 		final String SQL = "SELECT a.id acquirer_id, "
 				+ "a.card_number acquirer_card_number, "
@@ -59,11 +63,11 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 			    + " AND a.merchant_id IN (:merchant_id) "
 			    + " AND a.settle_time BETWEEN :start_date AND :end_date";
 		
-		List<String> ids = Arrays.asList(merchantIds);		
+		List<String> ids = Arrays.asList(appProperties.getMerchantIds());		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("merchant_id", ids);
-		params.addValue("start_date", startDate);
-		params.addValue("end_date", endDate);
+		params.addValue("start_date", appProperties.getSettlementStartDate());
+		params.addValue("end_date", appProperties.getSettlementEndDate());
 		
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());		
 		List<AcquirerRecon> list = new ArrayList<>();
@@ -95,15 +99,17 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ?";
 		int rowsUpdated = 0;
 		
-		try {
-			rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId()});
-		} catch (Exception e) {
-			logger.error(e);
+		if (appProperties.isProductionMode()) {
+			try {
+				rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId()});
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		}
 		
 		logger.info("Row updated: "+rowsUpdated);
 		
-		if (rowsUpdated > 0) {
+		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
 			log(t);
 		}
 		

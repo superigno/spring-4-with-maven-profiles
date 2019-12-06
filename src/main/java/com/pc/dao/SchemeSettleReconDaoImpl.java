@@ -1,16 +1,18 @@
 package com.pc.dao;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.pc.mapper.SchemeSettlementMapper;
+import com.pc.model.AppProperties;
 import com.pc.model.SchemeSettleRecon;
 import com.pc.util.ReconUtil;
 
@@ -26,11 +28,49 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	AppProperties appProperties;
 
 	@Override
-	public List<SchemeSettleRecon> getList(String[] merchantIds, String startDate, String endDate) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SchemeSettleRecon> getList(SchemeSettleRecon t) {
+		
+		logger.info("Looking for match in schemesettlement table...");
+		logger.info("Merchant ID: {}", t.getSettlementMerchantId());
+		logger.info("Terminal ID: {}", t.getSettlementTerminalId());
+		logger.info("Base Amount: {}", t.getSettlementBaseAmount());
+		logger.info("Non DCC Reason Code: {}", t.getSettlementRrn());
+		logger.info("Notes: {}", t.getSettlementTrxId());
+		logger.debug("Payment Start Date: "+appProperties.getSettlementStartDate());
+		logger.debug("Payment End Date: "+appProperties.getSettlementEndDate());
+		
+		final String SELECT_SQL = "SELECT id, trx_id, merchant_id, terminal_id, base_amount, nondcc_reason_code, notes " + 
+				"FROM schemesettlement " + 
+				"WHERE merchant_id = ? " + 
+				"AND terminal_id = ? " + 
+				"AND base_amount = ? " + 
+				"AND nondcc_reason_code = ? " + 
+				"AND notes = ? " +
+				"AND payment_date BETWEEN ? AND ?";
+		
+		
+		List<SchemeSettleRecon> list = new ArrayList<>();
+		
+		try {
+			list = jdbcTemplate.query(SELECT_SQL, new Object[] {t.getSettlementMerchantId(), 
+					  t.getSettlementTerminalId(), 
+					  t.getSettlementBaseAmount(), 
+					  t.getSettlementRrn(), 
+					  t.getSettlementTrxId(),
+					  appProperties.getSettlementStartDate(),
+					  appProperties.getSettlementEndDate()}, new SchemeSettlementMapper());
+		}catch (Exception e) {
+			logger.error(e);
+		}
+		
+		logger.info("Matches found: "+list.size());
+				
+		return list;
 	}
 
 	@Override
@@ -43,54 +83,23 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	public long update(SchemeSettleRecon t) {
 		logger.debug("Updating trx_id for {}",t);
 		
-		final String SELECT_SQL = "SELECT CONCAT(id,',',trx_id) id_trxid " + 
-				"FROM schemesettlement " + 
-				"WHERE merchant_id = ? " + 
-				"AND terminal_id = ? " + 
-				"AND base_amount = ? " + 
-				"AND nondcc_reason_code = ? " + 
-				"AND notes = ?";
-		
-		String idTrxId = null;
-		
-		try {
-		   idTrxId = jdbcTemplate.queryForObject(SELECT_SQL, 
-				new Object[] {t.getSettlementMerchantId(), 
-							  t.getSettlementTerminalId(), 
-							  t.getSettlementBaseAmount(), 
-							  t.getSettlementRrn(), 
-							  t.getSettlementTrxId()}, String.class);
-		} catch(EmptyResultDataAccessException  e) {
-			logger.info("No record found");
-			return 0;
-		} catch(Exception e) {
-			logger.error(e);
-		}		
-		
-		String[] s = idTrxId.split(",");
-		String id = s[0];
-		String trxId = s[1];
-		
-		logger.info("Found ID: {} Trx ID: {}", id, trxId);
-		
-		t.setSchemeSettlementId(Long.parseLong(id));
-		t.setSchemeSettlementTrxId(trxId);
-		
 		final String SQL = "UPDATE schemesettlement " + 
 				"SET trx_id = ? " + 
 				"WHERE id = ?";
 		
 		int rowsUpdated = 0;
 		
-		try {
-			rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getAcquirerId(), id});
-		} catch(Exception e) {
-			logger.error(e);
+		if (appProperties.isProductionMode()) {
+			try {
+				rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getAcquirerId(), t.getSchemeSettlementId()});
+			} catch(Exception e) {
+				logger.error(e);
+			}
 		}
 		
 		logger.info("Rows updated: "+rowsUpdated);		
 		
-		if (rowsUpdated > 0) {
+		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
 			log(t);
 		}
 		

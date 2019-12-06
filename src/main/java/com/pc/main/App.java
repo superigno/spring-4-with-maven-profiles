@@ -48,9 +48,6 @@ public class App {
 		public void run() {
 			
 			String appDirectory = prop.getAppDirectory();
-			String[] merchantIds = prop.getMerchantIds();
-			String startDate = prop.getSettlementStartDate();
-			String endDate = prop.getSettlementEndDate();
 			String filesDir = appDirectory+"\\files";
 			
 			Path dir = Paths.get(filesDir);		
@@ -73,18 +70,29 @@ public class App {
 			    	file.delete();
 			    }
 				
-				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(merchantIds, startDate, endDate);
+				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList();
 				int acquirerRowsUpdated = 0;
 				int schemeSettleRowsUpdated = 0;
 				int pendingCommissionDeleted = 0;
 				int missingCommissionDeleted = 0;
 				
-				for (AcquirerRecon ar : list) {			
+				for (AcquirerRecon ar : list) {		
+					
 					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
 					SchemeSettleRecon scheme = new SchemeSettleRecon(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), ar.getAcquirerId(), ar.getSettlementFilename());
-					schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(scheme);
-					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());
-					missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(ar.getAcquirerId());					
+					
+					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(scheme);
+					
+					for (SchemeSettleRecon s : schemeList) {
+						s.setAcquirerId(ar.getAcquirerId());
+						s.setSettlementFilename(ar.getSettlementFilename());
+						schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(s);
+						missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(s.getSchemeSettlementId());
+					}
+					
+					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
+					
+					logger.info("Done");					
 				}	
 				
 				logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
@@ -92,7 +100,7 @@ public class App {
 				logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
 				logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
 								
-				logger.info("Done");
+				logger.info("*****End*****");
 			}
 		}
 	

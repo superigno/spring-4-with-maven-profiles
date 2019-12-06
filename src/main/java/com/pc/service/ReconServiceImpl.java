@@ -46,8 +46,13 @@ public class ReconServiceImpl implements ReconService {
 	}
 	 
 	@Override
-	public List<AcquirerRecon> getAcquirerSettlementMappingList(String[] merchantIds, String startDate, String endDate) {
-		return acquirerReconDao.getList(merchantIds, startDate, endDate);
+	public List<AcquirerRecon> getAcquirerSettlementMappingList() {
+		return acquirerReconDao.getList(null);
+	}
+	
+	@Override
+	public List<SchemeSettleRecon> getSchemeSettlementMappingList(SchemeSettleRecon t) {
+		return schemeSettleReconDao.getList(t);
 	}
 
 	@Override

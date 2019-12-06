@@ -131,7 +131,7 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 	}
 	
 	@Override
-	public List<SettlementInfo> getList(String[] merchantIds, String startDate, String endDate) {
+	public List<SettlementInfo> getList(SettlementInfo t) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.pc.model.AppProperties;
+
 /**
  * @author gino.q
  *
@@ -21,8 +23,11 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	AppProperties appProperties;
+	
 	@Override
-	public List getList(String[] merchantIds, String startDate, String endDate) {
+	public List getList(Object t) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -59,12 +64,16 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao {
 
 	@Override
 	public long delete(long id) {
+		logger.info("Deleting record from extrapendingcommission table...");
 		final String SQL = "DELETE FROM extrapendingcommission WHERE id = ?";
 		long rowsDeleted = 0;
-		try {
-			rowsDeleted = jdbcTemplate.update(SQL, id);
-		} catch (Exception e) {
-			logger.error(e);
+		
+		if (appProperties.isProductionMode()) {
+			try {
+				rowsDeleted = jdbcTemplate.update(SQL, id);
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		}
 						
 		logger.info("Total rows deleted: "+rowsDeleted);

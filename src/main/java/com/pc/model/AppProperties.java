@@ -11,9 +11,16 @@ public class AppProperties {
 	private String settlementStartDate;
 	private String settlementEndDate;
 	private int scanPeriodInMinutes;
+	private boolean isProductionMode;
 	
 	public String getAppDirectory() {
 		return appDirectory;
+	}
+	public boolean isProductionMode() {
+		return isProductionMode;
+	}
+	public void setProductionMode(boolean isProductionMode) {
+		this.isProductionMode = isProductionMode;
 	}
 	public void setAppDirectory(String appDirectory) {
 		this.appDirectory = appDirectory;
