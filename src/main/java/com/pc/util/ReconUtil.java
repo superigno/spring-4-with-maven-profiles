@@ -23,7 +23,6 @@ public class ReconUtil {
 	private static final String REGEX_PIPE_TRIMMED = "\\s*\\|\\s*";
 	private static final int MANDATORY_PARAM_COUNT = 15;
 	private static String transId;
-	private static String fileName;
 	
 	public static List<SettlementInfo> getSettlementList(File f) {
 		FileReader fr = null;
@@ -37,7 +36,7 @@ public class ReconUtil {
 			while ((s = br.readLine()) != null) {
 				String[] items = doParse(s);
 				if (items.length >= MANDATORY_PARAM_COUNT) {					
-					settlementList.add(new SettlementInfo(items));
+					settlementList.add(new SettlementInfo(items, f.getName()));
 				}				
 			}			
 		} catch (Exception e) {
@@ -67,14 +66,6 @@ public class ReconUtil {
 	
 	public static void generateNewTransId() {
 		transId = String.format("%06d", new Random().nextInt(999999));
-	}
-
-	public static String getFileName() {
-		return fileName;
-	}
-
-	public static void setFileName(String fileName) {
-		ReconUtil.fileName = fileName;
 	}
 
 }

@@ -16,6 +16,7 @@ public class AcquirerRecon {
 	private String baseAmount;
 	private String rrn;
 	private String trxId;
+	private String settlementFilename;
 	
 	public long getAcquirerId() {
 		return acquirerId;
@@ -76,6 +77,12 @@ public class AcquirerRecon {
 	}
 	public void setTrxId(String trxId) {
 		this.trxId = trxId;
-	}	
-
+	}
+	public String getSettlementFilename() {
+		return settlementFilename;
+	}
+	public void setSettlementFilename(String settlementFilename) {
+		this.settlementFilename = settlementFilename;
+	}
+	
 }

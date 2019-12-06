@@ -17,7 +17,7 @@ public class SettlementInfo {
 		return false;
 	}
 	
-	public SettlementInfo(String[] info) {
+	public SettlementInfo(String[] info, String filename) {
 		try {
 			this.merchantId = info[0];
 			this.terminalId = info[1];
@@ -49,9 +49,11 @@ public class SettlementInfo {
 			this.nonDccReasonCode = info[26];
 			this.cardNumberLength = !isNullOrEmpty(info[27]) ? Long.parseLong(info[27]) : 0;
 			this.rateProgram = info[28];
-			this.trxId = info[29];
+			this.trxId = info[29];			
 		} catch (IndexOutOfBoundsException e) {
 			
+		} finally {
+			this.filename = filename;
 		}
 	}
 	
@@ -86,6 +88,7 @@ public class SettlementInfo {
 	private long cardNumberLength;
 	private String rateProgram;
 	private String trxId;
+	private String filename;
 	
 	public String getMerchantId() {
 		return merchantId;
@@ -210,6 +213,10 @@ public class SettlementInfo {
 	public String getTrxId() {
 		return trxId;
 	}
+	
+	public String getFilename() {
+		return filename;
+	}
 
 	@Override
 	public String toString() {
@@ -224,7 +231,7 @@ public class SettlementInfo {
 				+ netMerchantCommi + ", schemeSettlementRate=" + schemeSettlementRate + ", schemeSettlementAmount="
 				+ schemeSettlementAmount + ", settleTime=" + settleTime + ", repaymentFee=" + repaymentFee
 				+ ", originator=" + originator + ", nonDccReasonCode=" + nonDccReasonCode + ", cardNumberLength="
-				+ cardNumberLength + ", rateProgram=" + rateProgram + ", trxId=" + trxId + "]";
-	}		
-	
+				+ cardNumberLength + ", rateProgram=" + rateProgram + ", trxId=" + trxId + ", filename=" + filename
+				+ "]";
+	}
 }

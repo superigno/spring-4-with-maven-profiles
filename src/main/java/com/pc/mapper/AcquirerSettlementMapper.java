@@ -26,6 +26,7 @@ public class AcquirerSettlementMapper implements RowMapper<AcquirerRecon> {
 		recon.setBaseAmount(rs.getString("base_amount"));
 		recon.setRrn(rs.getString("rrn"));
 		recon.setTrxId(rs.getString("trx_id"));
+		recon.setSettlementFilename(rs.getString("file_name"));
 		return recon;
 	}
 	

@@ -48,7 +48,8 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 				+ "	b.terminal_id, "  
 				+ "	b.base_amount, " 
 				+ "	b.rrn, " 
-				+ " b.trx_id "
+				+ " b.trx_id, "
+				+ " b.file_name "
 				+ " FROM acquirertransaction a, settlementfile b "
 			    + " WHERE a.merchant_id = b.merchant_id "
 			    + " AND a.terminal_id = b.terminal_id "
@@ -140,8 +141,8 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
-			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_number", t.getAcquirerCardNumber(), t.getSettlementCardNumber(), d, ReconUtil.getTransId(), t.getSettlementFilename()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"acquirertransaction", t.getAcquirerId(), "card_currency", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency(), d, ReconUtil.getTransId(), t.getSettlementFilename()});
 		} catch (Exception e) {
 			logger.error(e);
 		}

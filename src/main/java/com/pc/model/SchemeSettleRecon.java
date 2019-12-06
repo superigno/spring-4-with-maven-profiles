@@ -14,19 +14,21 @@ public class SchemeSettleRecon {
 	private String settlementRrn;
 	private String settlementTrxId;
 	private long acquirerId;
+	private String settlementFilename;
 	
 	public SchemeSettleRecon() {
 		
 	}
 	
 	public SchemeSettleRecon(String settlementMerchantId, String settlementTerminalId, String settlementBaseAmount,
-			String settlementRrn, String settlementTrxId, long acquirerId) {
+			String settlementRrn, String settlementTrxId, long acquirerId, String settlementFilename) {
 		this.settlementMerchantId = settlementMerchantId;
 		this.settlementTerminalId = settlementTerminalId;
 		this.settlementBaseAmount = settlementBaseAmount;
 		this.settlementRrn = settlementRrn;
 		this.settlementTrxId = settlementTrxId;
 		this.acquirerId = acquirerId;
+		this.settlementFilename = settlementFilename;
 	}
 	
 	public String getSettlementMerchantId() {
@@ -81,13 +83,20 @@ public class SchemeSettleRecon {
 	public void setSchemeSettlementTrxId(String schemeSettlementTrxId) {
 		this.schemeSettlementTrxId = schemeSettlementTrxId;
 	}
+	
+	public String getSettlementFilename() {
+		return settlementFilename;
+	}
+
+	public void setSettlementFilename(String settlementFilename) {
+		this.settlementFilename = settlementFilename;
+	}
 
 	@Override
 	public String toString() {
-		return "SchemeSettleRecon [schemeSettlementId=" + schemeSettlementId + ", schemeSettlementTrxId="
-				+ schemeSettlementTrxId + ", settlementMerchantId=" + settlementMerchantId + ", settlementTerminalId="
+		return "SchemeSettleRecon [settlementMerchantId=" + settlementMerchantId + ", settlementTerminalId="
 				+ settlementTerminalId + ", settlementBaseAmount=" + settlementBaseAmount + ", settlementRrn="
-				+ settlementRrn + ", settlementTrxId=" + settlementTrxId + ", acquirerId=" + acquirerId + "]";
+				+ settlementRrn + ", settlementTrxId=" + settlementTrxId + "]";
 	}
 
 }

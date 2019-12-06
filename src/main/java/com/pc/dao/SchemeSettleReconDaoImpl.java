@@ -128,7 +128,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {
-			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d, ReconUtil.getTransId(), ReconUtil.getFileName()});
+			jdbcTemplate.update(LOG_SQL, new Object[] {"schemesettlement", t.getSchemeSettlementId(), "trx_id", t.getSchemeSettlementTrxId(), t.getAcquirerId(), d, ReconUtil.getTransId(), t.getSettlementFilename()});
 		} catch(Exception e) {
 			logger.error(e);
 		}

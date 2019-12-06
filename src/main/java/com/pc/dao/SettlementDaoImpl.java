@@ -21,8 +21,8 @@ import com.pc.model.SettlementInfo;
 public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 
 	private static final Logger logger = LogManager.getLogger(SettlementDaoImpl.class);
-	private static final String INSERT_SQL = "INSERT INTO settlementfile (merchant_id, terminal_id, merchant_ref, terminal_transaction_time, acquirer_time, trx_type, base_currency, base_amount, trx_currency, trx_amount, exchange_rate, response_code, response_message, authorisation_code, RRN, card_number, card_currency, card_type, gross_margin, net_bank_commi, net_pc_commi, net_merchant_commi, scheme_settle_rate, scheme_settle_amount, settle_time, repayment_fee, originator, non_dcc_reason_code, card_number_length, rate_program, trx_id) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+	private static final String INSERT_SQL = "INSERT INTO settlementfile (merchant_id, terminal_id, merchant_ref, terminal_transaction_time, acquirer_time, trx_type, base_currency, base_amount, trx_currency, trx_amount, exchange_rate, response_code, response_message, authorisation_code, RRN, card_number, card_currency, card_type, gross_margin, net_bank_commi, net_pc_commi, net_merchant_commi, scheme_settle_rate, scheme_settle_amount, settle_time, repayment_fee, originator, non_dcc_reason_code, card_number_length, rate_program, trx_id, file_name) "
+			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 	private static final int BATCH_INSERT_LIMIT = 1000;
 	
@@ -36,7 +36,7 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 				info.getBaseCurrency(), info.getBaseAmount(), info.getTrxCurrency(), info.getTrxAmount(), info.getExchangeRate(), info.getResponseCode(), info.getResponseMessage(), 
 				info.getAuthorisationCode(), info.getRrn(), info.getCardNumber(), info.getCardCurrency(), info.getCardType(), info.getGrossMargin(), info.getNetBankCommi(), info.getNetPcCommi(), 
 				info.getNetMerchantCommi(), info.getSchemeSettlementRate(), info.getSchemeSettlementAmount(), info.getSettleTime(), info.getRepaymentFee(), info.getOriginator(), info.getNonDccReasonCode(), 
-				info.getCardNumberLength(), info.getRateProgram(), info.getTrxId()};
+				info.getCardNumberLength(), info.getRateProgram(), info.getTrxId(), info.getFilename()};
 		
 		long rowsInserted = 0;
 		try {
@@ -89,6 +89,7 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 							ps.setLong(29, info.getCardNumberLength()); 
 							ps.setString(30, info.getRateProgram());
 							ps.setString(31, info.getTrxId());
+							ps.setString(32, info.getFilename());
 						}
 					});
 		} catch (Exception e) {
