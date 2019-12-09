@@ -27,18 +27,18 @@ import com.pc.util.ReconUtil;
 public class App {
 	
 	private static final Logger logger = LogManager.getLogger(App.class);
-	private static AppProperties prop;
+	private static AppProperties props;
 	private static ReconService reconService;
 	
 	public static void main(String[] args) {
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(new TyroRecon(), 0, prop.getScanPeriodInMinutes(), TimeUnit.MINUTES);		
+		scheduler.scheduleWithFixedDelay(new TyroRecon(), 0, props.getScanPeriodInMinutes(), TimeUnit.MINUTES);		
 	}
 	
 	static {
 		AbstractApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfig.class);
 		reconService = (ReconService) context.getBean("reconService");
-		prop = (AppProperties) context.getBean("appProperties");
+		props = (AppProperties) context.getBean("appProperties");
 		context.close();		
 	}
 	
@@ -47,7 +47,7 @@ public class App {
 		@Override
 		public void run() {
 			
-			String appDirectory = prop.getAppDirectory();
+			String appDirectory = props.getAppDirectory();
 			String filesDir = appDirectory+"\\files";
 			
 			Path dir = Paths.get(filesDir);		
@@ -58,19 +58,20 @@ public class App {
 			
 			if (files.length > 0) {
 				
+				logger.info("**************************************** START ****************************************");
+				
 				ReconUtil.generateNewTransId();
-				logger.info("Transaction ID: {}", ReconUtil.getTransId());
+				logger.info("Generated transaction ID: {}", ReconUtil.getTransId());
 				
 				reconService.cleanupSettlementTable();
 				
-				for (File file : files) {
-					
+				for (File file : files) {					
 					logger.info("Filename: "+file.getName());					
 			    	reconService.insertSettlementFileToDb(file);			    	
 			    	file.delete();
 			    }
 				
-				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList();
+				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(props.getMerchantIds(), props.getSettlementStartDate(), props.getSettlementEndDate());
 				int acquirerRowsUpdated = 0;
 				int schemeSettleRowsUpdated = 0;
 				int pendingCommissionDeleted = 0;
@@ -79,9 +80,9 @@ public class App {
 				for (AcquirerRecon ar : list) {		
 					
 					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
-					SchemeSettleRecon scheme = new SchemeSettleRecon(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), ar.getAcquirerId(), ar.getSettlementFilename());
 					
-					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(scheme);
+					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
+							props.getSettlementStartDate(), props.getSettlementEndDate());
 					
 					for (SchemeSettleRecon s : schemeList) {
 						s.setAcquirerId(ar.getAcquirerId());
@@ -92,7 +93,7 @@ public class App {
 					
 					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
 					
-					logger.info("Done");					
+					logger.info("-------------------------------------------------------------------------------------------------------------");					
 				}	
 				
 				logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
@@ -100,7 +101,7 @@ public class App {
 				logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
 				logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
 								
-				logger.info("*****End*****");
+				logger.info("**************************************** END ****************************************");
 			}
 		}
 	

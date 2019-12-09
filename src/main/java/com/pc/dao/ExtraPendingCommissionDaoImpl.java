@@ -15,8 +15,7 @@ import com.pc.model.AppProperties;
  *
  */
 @Repository("extraPendingCommissionDao")
-@SuppressWarnings("rawtypes")
-public class ExtraPendingCommissionDaoImpl implements ReconDao {
+public class ExtraPendingCommissionDaoImpl implements ReconDao<Object,String[]> {
 
 	private static final Logger logger = LogManager.getLogger(AcquirerReconDaoImpl.class);
 	
@@ -27,13 +26,13 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao {
 	AppProperties appProperties;
 	
 	@Override
-	public List getList(Object t) {
+	public List<Object> getList(String[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object get(long id) {
+	public Object get(String[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -45,7 +44,7 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao {
 	}
 
 	@Override
-	public long insertAll(List list) {
+	public long insertAll(List<Object> list) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -63,14 +62,14 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao {
 	}
 
 	@Override
-	public long delete(long id) {
+	public long delete(String[] p) {
 		logger.info("Deleting record from extrapendingcommission table...");
 		final String SQL = "DELETE FROM extrapendingcommission WHERE id = ?";
 		long rowsDeleted = 0;
 		
 		if (appProperties.isProductionMode()) {
 			try {
-				rowsDeleted = jdbcTemplate.update(SQL, id);
+				rowsDeleted = jdbcTemplate.update(SQL, p[0]);
 			} catch (Exception e) {
 				logger.error(e);
 			}

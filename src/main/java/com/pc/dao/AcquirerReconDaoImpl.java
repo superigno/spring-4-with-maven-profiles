@@ -25,7 +25,7 @@ import com.pc.util.ReconUtil;
  */
 
 @Repository
-public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
+public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 
 	private static final Logger logger = LogManager.getLogger(AcquirerReconDaoImpl.class);
 	
@@ -36,12 +36,16 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	AppProperties appProperties;
 	
 	@Override
-	public List<AcquirerRecon> getList(AcquirerRecon t) {
+	public List<AcquirerRecon> getList(Object[] p) {
+		
+		String[] merchantIds = (String[]) p[0];
+		String startDate = p[1].toString();
+		String endDate = p[2].toString();
 		
 		logger.info("Looking for match in acquirertransaction table...");
-		logger.debug("Merchant IDs: "+Arrays.toString(appProperties.getMerchantIds()));
-		logger.debug("Settle Start Date: "+appProperties.getSettlementStartDate());
-		logger.debug("Settle End Date: "+appProperties.getSettlementEndDate());
+		logger.debug("Merchant IDs: "+Arrays.toString(merchantIds));
+		logger.debug("Settle Start Date: "+startDate);
+		logger.debug("Settle End Date: "+endDate);
 		
 		final String SQL = "SELECT a.id acquirer_id, "
 				+ "a.card_number acquirer_card_number, "
@@ -63,11 +67,11 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 			    + " AND a.merchant_id IN (:merchant_id) "
 			    + " AND a.settle_time BETWEEN :start_date AND :end_date";
 		
-		List<String> ids = Arrays.asList(appProperties.getMerchantIds());		
+		List<String> ids = Arrays.asList(merchantIds);		
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("merchant_id", ids);
-		params.addValue("start_date", appProperties.getSettlementStartDate());
-		params.addValue("end_date", appProperties.getSettlementEndDate());
+		params.addValue("start_date", startDate);
+		params.addValue("end_date", endDate);
 		
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());		
 		List<AcquirerRecon> list = new ArrayList<>();
@@ -84,7 +88,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	}
 
 	@Override
-	public AcquirerRecon get(long id) {
+	public AcquirerRecon get(Object[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -92,7 +96,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	@Override
 	public long update(AcquirerRecon t) {
 		
-		logger.debug("Updating card_number and card_currency for id='{}'",t.getAcquirerId());
+		logger.debug("Updating card_number and card_currency for id='{}'", t.getAcquirerId());
 		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
 		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		
@@ -136,7 +140,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon> {
 	}
 
 	@Override
-	public long delete(long id) {
+	public long delete(Object[] p) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

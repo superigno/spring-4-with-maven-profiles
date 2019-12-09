@@ -18,7 +18,7 @@ import com.pc.model.SettlementInfo;
  *
  */
 @Repository
-public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
+public class SettlementDaoImpl implements ReconDao<SettlementInfo,String[]> {
 
 	private static final Logger logger = LogManager.getLogger(SettlementDaoImpl.class);
 	private static final String INSERT_SQL = "INSERT INTO settlementfile (merchant_id, terminal_id, merchant_ref, terminal_transaction_time, acquirer_time, trx_type, base_currency, base_amount, trx_currency, trx_amount, exchange_rate, response_code, response_message, authorisation_code, RRN, card_number, card_currency, card_type, gross_margin, net_bank_commi, net_pc_commi, net_merchant_commi, scheme_settle_rate, scheme_settle_amount, settle_time, repayment_fee, originator, non_dcc_reason_code, card_number_length, rate_program, trx_id, file_name) "
@@ -131,13 +131,13 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 	}
 	
 	@Override
-	public List<SettlementInfo> getList(SettlementInfo t) {
+	public List<SettlementInfo> getList(String[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public SettlementInfo get(long id) {
+	public SettlementInfo get(String[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -149,7 +149,7 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo> {
 	}
 
 	@Override
-	public long delete(long id) {
+	public long delete(String[] p) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

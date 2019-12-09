@@ -14,8 +14,8 @@ public interface ReconService {
 	
 	public void cleanupSettlementTable();
 	public void insertSettlementFileToDb(File file);	
-	public List<AcquirerRecon> getAcquirerSettlementMappingList();
-	public List<SchemeSettleRecon> getSchemeSettlementMappingList(SchemeSettleRecon t);
+	public List<AcquirerRecon> getAcquirerSettlementMappingList(String[] merchantIds, String settlementStartDate, String settlementEndDate);
+	public List<SchemeSettleRecon> getSchemeSettlementMappingList(String merchantId, String terminalId, String baseAmount, String rrn, String trxId, String settlementStartDate, String settlementEndDate);
 	public long updateAcquirerDetails(AcquirerRecon a);
 	public long updateSchemeSettlementDetails(SchemeSettleRecon s);
 	public long deleteFromExtraPendingCommission(long id);

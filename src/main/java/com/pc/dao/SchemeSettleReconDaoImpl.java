@@ -22,7 +22,7 @@ import com.pc.util.ReconUtil;
  */
 
 @Repository
-public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
+public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,String[]> {
 	
 	private static final Logger logger = LogManager.getLogger(SchemeSettleReconDaoImpl.class);
 	
@@ -33,16 +33,24 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	AppProperties appProperties;
 
 	@Override
-	public List<SchemeSettleRecon> getList(SchemeSettleRecon t) {
+	public List<SchemeSettleRecon> getList(String[] p) {
+		
+		String merchantId = p[0];
+		String terminalId = p[1];
+		String baseAmount = p[2];
+		String rrn = p[3];
+		String trxId = p[4];
+		String startDate = p[5];
+		String endDate = p[6];
 		
 		logger.info("Looking for match in schemesettlement table...");
-		logger.info("Merchant ID: {}", t.getSettlementMerchantId());
-		logger.info("Terminal ID: {}", t.getSettlementTerminalId());
-		logger.info("Base Amount: {}", t.getSettlementBaseAmount());
-		logger.info("Non DCC Reason Code: {}", t.getSettlementRrn());
-		logger.info("Notes: {}", t.getSettlementTrxId());
-		logger.debug("Payment Start Date: "+appProperties.getSettlementStartDate());
-		logger.debug("Payment End Date: "+appProperties.getSettlementEndDate());
+		logger.info("Merchant ID: {}", merchantId);
+		logger.info("Terminal ID: {}", terminalId);
+		logger.info("Base Amount: {}", baseAmount);
+		logger.info("Non DCC Reason Code: {}", rrn);
+		logger.info("Notes: {}", trxId);
+		logger.debug("Payment Start Date: "+startDate);
+		logger.debug("Payment End Date: "+endDate);
 		
 		final String SELECT_SQL = "SELECT id, trx_id, merchant_id, terminal_id, base_amount, nondcc_reason_code, notes " + 
 				"FROM schemesettlement " + 
@@ -53,17 +61,10 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 				"AND notes = ? " +
 				"AND payment_date BETWEEN ? AND ?";
 		
-		
 		List<SchemeSettleRecon> list = new ArrayList<>();
 		
 		try {
-			list = jdbcTemplate.query(SELECT_SQL, new Object[] {t.getSettlementMerchantId(), 
-					  t.getSettlementTerminalId(), 
-					  t.getSettlementBaseAmount(), 
-					  t.getSettlementRrn(), 
-					  t.getSettlementTrxId(),
-					  appProperties.getSettlementStartDate(),
-					  appProperties.getSettlementEndDate()}, new SchemeSettlementMapper());
+			list = jdbcTemplate.query(SELECT_SQL, new Object[] {merchantId, terminalId, baseAmount, rrn, trxId, startDate, endDate}, new SchemeSettlementMapper());
 		}catch (Exception e) {
 			logger.error(e);
 		}
@@ -74,13 +75,14 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	}
 
 	@Override
-	public SchemeSettleRecon get(long id) {
+	public SchemeSettleRecon get(String[] p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public long update(SchemeSettleRecon t) {
+		
 		logger.debug("Updating trx_id for {}",t);
 		
 		final String SQL = "UPDATE schemesettlement " + 
@@ -126,7 +128,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon> {
 	}
 
 	@Override
-	public long delete(long id) {
+	public long delete(String[] p) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

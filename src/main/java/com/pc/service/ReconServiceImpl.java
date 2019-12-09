@@ -18,21 +18,21 @@ import com.pc.util.ReconUtil;
  */
 @Service("reconService")
 public class ReconServiceImpl implements ReconService {
-
-	@Autowired
-	private ReconDao<AcquirerRecon> acquirerReconDao;
 	
 	@Autowired
-	private ReconDao<SettlementInfo> settlementDao;
+	private ReconDao<AcquirerRecon,Object[]> acquirerReconDao;
 	
 	@Autowired
-	private ReconDao<SchemeSettleRecon> schemeSettleReconDao;
+	private ReconDao<SettlementInfo,String[]> settlementDao;
 	
 	@Autowired
-	private ReconDao<Object> extraPendingCommissionDao;
+	private ReconDao<SchemeSettleRecon,String[]> schemeSettleReconDao;
 	
 	@Autowired
-	private ReconDao<Object> extraMissingCommissionDao;
+	private ReconDao<Object,String[]> extraPendingCommissionDao;
+	
+	@Autowired
+	private ReconDao<Object,String[]> extraMissingCommissionDao;
 	
 	@Override
 	public void cleanupSettlementTable() {
@@ -46,18 +46,20 @@ public class ReconServiceImpl implements ReconService {
 	}
 	 
 	@Override
-	public List<AcquirerRecon> getAcquirerSettlementMappingList() {
-		return acquirerReconDao.getList(null);
+	public List<AcquirerRecon> getAcquirerSettlementMappingList(String[] merchantIds, String settlementStartDate, String settlementEndDate) {
+		Object[] params = {merchantIds, settlementStartDate, settlementEndDate};
+		return acquirerReconDao.getList(params);
 	}
 	
 	@Override
-	public List<SchemeSettleRecon> getSchemeSettlementMappingList(SchemeSettleRecon t) {
-		return schemeSettleReconDao.getList(t);
+	public List<SchemeSettleRecon> getSchemeSettlementMappingList(String merchantId, String terminalId, String baseAmount, String rrn, String trxId, String settlementStartDate, String settlementEndDate) {		
+		String[] params = {merchantId, terminalId, baseAmount, rrn, trxId, settlementStartDate, settlementEndDate};
+		return schemeSettleReconDao.getList(params);
 	}
 
 	@Override
-	public long updateAcquirerDetails(AcquirerRecon p) {
-		return acquirerReconDao.update(p);		
+	public long updateAcquirerDetails(AcquirerRecon a) {
+		return acquirerReconDao.update(a);		
 	}
 
 	@Override
@@ -67,12 +69,12 @@ public class ReconServiceImpl implements ReconService {
 
 	@Override
 	public long deleteFromExtraPendingCommission(long id) {
-		return extraPendingCommissionDao.delete(id);
+		return extraPendingCommissionDao.delete(new String[] {String.valueOf(id)});
 	}
 
 	@Override
 	public long deleteFromExtraMissingCommission(long id) {
-		return extraMissingCommissionDao.delete(id);
+		return extraMissingCommissionDao.delete(new String[] {String.valueOf(id)});
 	}	
 	
 }
