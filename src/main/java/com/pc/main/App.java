@@ -71,6 +71,8 @@ public class App {
 			    	file.delete();
 			    }
 				
+				logger.info("-------------------------------------------------------------------------------------");
+				
 				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(props.getMerchantIds(), props.getSettlementStartDate(), props.getSettlementEndDate());
 				int acquirerRowsUpdated = 0;
 				int schemeSettleRowsUpdated = 0;
@@ -93,7 +95,7 @@ public class App {
 					
 					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
 					
-					logger.info("-------------------------------------------------------------------------------------------------------------");					
+					logger.info("-------------------------------------------------------------------------------------");					
 				}	
 				
 				logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
@@ -102,6 +104,7 @@ public class App {
 				logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
 								
 				logger.info("**************************************** END ****************************************");
+				logger.info("");
 			}
 		}
 	
