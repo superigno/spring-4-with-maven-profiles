@@ -108,7 +108,7 @@ public class SettlementDaoImpl implements ReconDao<SettlementInfo,String[]> {
 					totalRowsInserted++;
 				}
 			}
-			logger.info("Rows inserted: " + insertedCtr);
+			logger.trace("Rows inserted: " + insertedCtr);
 			batchCtr++;
 		}		
 		
