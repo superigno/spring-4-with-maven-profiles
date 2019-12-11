@@ -19,10 +19,7 @@ import com.pc.model.AppProperties;
  */
 @Configuration
 @ComponentScan(basePackages = "com.pc")
-@PropertySource({
-    "classpath:application.properties",
-    "classpath:jdbc.properties"
-})
+@PropertySource({"classpath:application.properties"})
 public class ApplicationConfig {
 	
 	@Autowired
