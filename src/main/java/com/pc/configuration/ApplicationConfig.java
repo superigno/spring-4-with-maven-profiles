@@ -1,7 +1,5 @@
 package com.pc.configuration;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.apache.tomcat.jdbc.pool.DataSource;
 
 import com.pc.model.AppProperties;
 
@@ -27,7 +25,7 @@ public class ApplicationConfig {
  
     @Bean
     public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    	DataSource dataSource = new DataSource();
         dataSource.setDriverClassName(env.getRequiredProperty("jdbc.driverClassName"));
         dataSource.setUrl(env.getRequiredProperty("jdbc.url"));
         dataSource.setUsername(env.getRequiredProperty("jdbc.username"));
