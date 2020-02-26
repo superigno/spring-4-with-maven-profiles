@@ -100,12 +100,14 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
 		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		
-		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ?";
+		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ? AND card_number = ? AND card_currency = ?;";
 		int rowsUpdated = 0;
+		
+		Object[] params = new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId(), t.getAcquirerCardNumber(), t.getAcquirerCardCurrency()};
 		
 		if (appProperties.isProductionMode()) {
 			try {
-				rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId()});
+				rowsUpdated = jdbcTemplate.update(SQL, params);
 			} catch (Exception e) {
 				logger.error(e);
 			}
@@ -115,10 +117,26 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		
 		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
 			log(t);
+			writeSqlToFile(SQL, params);
 		}
 		
 		return rowsUpdated;
 		
+	}
+	
+	private void writeSqlToFile(String sql, Object[] params) {		
+		logger.info("Writing SQL to file...");
+		
+	    try {
+	    	String dirPath = appProperties.getAppDirectory()+"/sql";
+	    	String filename = "acquirertransaction_"+ReconUtil.getTransId()+".sql";
+	    	String formattedSql = String.format(sql.replace("?", "%s"), "'"+params[0]+"'", "'"+params[1]+"'", params[2], "'"+params[3]+"'", "'"+params[4]+"'");	    	
+	    	logger.info("Filename: {}", dirPath);
+			logger.info("SQL: {}", formattedSql);	    	
+			ReconUtil.appendToFile(dirPath, filename, formattedSql);
+		} catch (Exception e) {
+			logger.error("Error in writing SQL statement to file", e);
+		}	    
 	}
 
 	@Override

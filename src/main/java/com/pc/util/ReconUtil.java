@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,7 +27,7 @@ public class ReconUtil {
 	private static final String REGEX_PIPE_TRIMMED = "\\s*\\|\\s*";
 	private static final int MANDATORY_PARAM_COUNT = 15;
 	private static String transId;
-	
+
 	public static List<SettlementInfo> getSettlementList(File f) {
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -35,10 +39,10 @@ public class ReconUtil {
 			br = new BufferedReader(fr);
 			while ((s = br.readLine()) != null) {
 				String[] items = doParse(s);
-				if (items.length >= MANDATORY_PARAM_COUNT) {					
+				if (items.length >= MANDATORY_PARAM_COUNT) {
 					settlementList.add(new SettlementInfo(items, f.getName()));
-				}				
-			}			
+				}
+			}
 		} catch (Exception e) {
 			logger.error("Error in reading file: ", e);
 		} finally {
@@ -48,22 +52,54 @@ public class ReconUtil {
 				logger.error("Error in closing reader: ", e);
 			}
 		}
-		
+
 		return settlementList;
 	}
-	
+
+	public static void cleanupDirectory(String filesDir) {
+		
+		File fileDir = new File(filesDir);
+		if (fileDir.exists()) {
+			File[] files = fileDir.listFiles();
+			for (File file : files) {
+				file.delete();
+			}
+		}
+		
+	}
+
+	public static void appendToFile(String dir, String filename, StringBuffer str) throws IOException {
+		appendToFile(dir, filename, str.toString());
+	}
+
+	public static void appendToFile(String dir, String filename, String str) throws IOException {
+		String textToAppend = str + "\n";
+		
+		File fileDir = new File(dir);
+		if (!fileDir.exists()) {
+			fileDir.mkdirs();
+		}
+		
+		Path path = Paths.get(dir + "\\" + filename);
+		if (Files.exists(path)) {
+			Files.write(path, textToAppend.getBytes(), StandardOpenOption.APPEND);
+		} else {
+			Files.write(path, textToAppend.getBytes(), StandardOpenOption.CREATE);
+		}
+	}
+
 	private static String[] doParse(String line) {
 		String[] items = line.split(REGEX_PIPE_TRIMMED);
 		return items;
 	}
-	
+
 	public static String getTransId() {
 		if (transId == null || transId.equals("")) {
 			generateNewTransId();
 		}
 		return transId;
 	}
-	
+
 	public static void generateNewTransId() {
 		transId = String.format("%06d", new Random().nextInt(999999));
 	}

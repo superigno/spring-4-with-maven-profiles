@@ -48,7 +48,7 @@ public class App {
 		public void run() {
 			
 			String appDirectory = props.getAppDirectory();
-			String filesDir = appDirectory+"\\files";
+			String filesDir = appDirectory+"/files";
 			
 			Path dir = Paths.get(filesDir);		
 			File[] files = dir.toFile().listFiles();
@@ -64,7 +64,9 @@ public class App {
 				logger.info("Generated transaction ID: {}", ReconUtil.getTransId());
 				
 				reconService.cleanupSettlementTable();
-				
+				//String sqlDir = props.getAppDirectory()+"/sql";
+				//ReconUtil.cleanupDirectory(sqlDir);
+								
 				for (File file : files) {					
 					logger.info("Filename: "+file.getName());					
 			    	reconService.insertSettlementFileToDb(file);			    	

@@ -87,13 +87,15 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		
 		final String SQL = "UPDATE schemesettlement " + 
 				"SET trx_id = ? " + 
-				"WHERE id = ?";
+				"WHERE id = ?;";
 		
 		int rowsUpdated = 0;
 		
+		Object[] params = new Object[] {t.getAcquirerId(), t.getSchemeSettlementId()};
+		
 		if (appProperties.isProductionMode()) {
 			try {
-				rowsUpdated = jdbcTemplate.update(SQL, new Object[] {t.getAcquirerId(), t.getSchemeSettlementId()});
+				rowsUpdated = jdbcTemplate.update(SQL, params);
 			} catch(Exception e) {
 				logger.error(e);
 			}
@@ -101,14 +103,31 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		
 		logger.info("Rows updated: "+rowsUpdated);		
 		
-		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
-			log(t);
+		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {			
+			
+			log(t);			
+			writeSqlToFile(SQL, params);
 		}
 		
 		return rowsUpdated;
 		
 	}
-
+	
+	private void writeSqlToFile(String sql, Object[] params) {
+		logger.info("Writing SQL to file...");
+		
+	    try {
+	    	String dirPath = appProperties.getAppDirectory()+"/sql";
+	    	String filename = "schemesettlement_"+ReconUtil.getTransId()+".sql";
+	    	String formattedSql = String.format(sql.replace("?", "%s"), params[0], params[1]);
+			logger.info("SQL: {}", formattedSql);	    	
+	    	logger.info("Filename: {}", dirPath);
+			ReconUtil.appendToFile(dirPath, filename, formattedSql);
+		} catch (Exception e) {
+			logger.error("Error in writing SQL statement to file", e);
+		}	    
+	}
+	
 	@Override
 	public long insertAll(List<SchemeSettleRecon> list) {
 		// TODO Auto-generated method stub
