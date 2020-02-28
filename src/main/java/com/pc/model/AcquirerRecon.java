@@ -17,7 +17,14 @@ public class AcquirerRecon {
 	private String rrn;
 	private String trxId;
 	private String settlementFilename;
+	private String trxCurrency;
 	
+	public String getTrxCurrency() {
+		return trxCurrency;
+	}
+	public void setTrxCurrency(String trxCurrency) {
+		this.trxCurrency = trxCurrency;
+	}
 	public long getAcquirerId() {
 		return acquirerId;
 	}

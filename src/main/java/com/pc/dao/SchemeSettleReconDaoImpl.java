@@ -54,7 +54,8 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		
 		final String SELECT_SQL = "SELECT id, trx_id, merchant_id, terminal_id, base_amount, nondcc_reason_code, notes " + 
 				"FROM schemesettlement " + 
-				"WHERE merchant_id = ? " + 
+				"WHERE trx_id = 0 "+
+				"AND merchant_id = ? " + 
 				"AND terminal_id = ? " + 
 				"AND base_amount = ? " + 
 				"AND nondcc_reason_code = ? " + 
@@ -120,8 +121,8 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 	    	String dirPath = appProperties.getAppDirectory()+"/sql";
 	    	String filename = "schemesettlement_"+ReconUtil.getTransId()+".sql";
 	    	String formattedSql = String.format(sql.replace("?", "%s"), params[0], params[1]);
-			logger.info("SQL: {}", formattedSql);	    	
-	    	logger.info("Filename: {}", dirPath);
+	    	logger.info("Filename: {}", filename);
+	    	logger.info("SQL: {}", formattedSql);
 			ReconUtil.appendToFile(dirPath, filename, formattedSql);
 		} catch (Exception e) {
 			logger.error("Error in writing SQL statement to file", e);

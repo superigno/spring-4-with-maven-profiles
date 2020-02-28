@@ -12,7 +12,14 @@ public class AppProperties {
 	private String settlementEndDate;
 	private int scanPeriodInMinutes;
 	private boolean isProductionMode;
+	private String baseCurrency;
 	
+	public String getBaseCurrency() {
+		return baseCurrency;
+	}
+	public void setBaseCurrency(String baseCurrency) {
+		this.baseCurrency = baseCurrency;
+	}
 	public String getAppDirectory() {
 		return appDirectory;
 	}

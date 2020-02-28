@@ -49,6 +49,7 @@ public class ApplicationConfig {
     	prop.setSettlementEndDate(env.getRequiredProperty("app.settlementEndDate"));
     	prop.setScanPeriodInMinutes(env.getRequiredProperty("app.scanPeriodInMinutes", Integer.class));
     	prop.setProductionMode(env.getRequiredProperty("app.isProductionMode", Boolean.class));
+    	prop.setBaseCurrency(env.getRequiredProperty("app.baseCurrency"));
     	return prop;
     }
     

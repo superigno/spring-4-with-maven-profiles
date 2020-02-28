@@ -64,8 +64,8 @@ public class App {
 				logger.info("Generated transaction ID: {}", ReconUtil.getTransId());
 				
 				reconService.cleanupSettlementTable();
-				//String sqlDir = props.getAppDirectory()+"/sql";
-				//ReconUtil.cleanupDirectory(sqlDir);
+				String sqlDir = props.getAppDirectory()+"/sql";
+				ReconUtil.cleanupDirectory(sqlDir);
 								
 				for (File file : files) {					
 					logger.info("Filename: "+file.getName());					
@@ -85,14 +85,19 @@ public class App {
 					
 					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
 					
-					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
-							props.getSettlementStartDate(), props.getSettlementEndDate());
+					/** Look for match in schemesettlement table (for opt-in transactions only) **/
+					if (!props.getBaseCurrency().equals(ar.getTrxCurrency())) {
 					
-					for (SchemeSettleRecon s : schemeList) {
-						s.setAcquirerId(ar.getAcquirerId());
-						s.setSettlementFilename(ar.getSettlementFilename());
-						schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(s);
-						missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(s.getSchemeSettlementId());
+						List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
+								props.getSettlementStartDate(), props.getSettlementEndDate());
+						
+						for (SchemeSettleRecon s : schemeList) {
+							s.setAcquirerId(ar.getAcquirerId());
+							s.setSettlementFilename(ar.getSettlementFilename());
+							schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(s);
+							missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(s.getSchemeSettlementId());
+						}
+						
 					}
 					
 					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						

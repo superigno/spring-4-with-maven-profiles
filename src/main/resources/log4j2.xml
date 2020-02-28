@@ -14,7 +14,7 @@
 				<Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %logger{36} %m%n</Pattern>
 			</PatternLayout>
 			<Policies>
-				<SizeBasedTriggeringPolicy size="10 MB" />
+				<SizeBasedTriggeringPolicy size="100 MB" />
 				<TimeBasedTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy max="10" />

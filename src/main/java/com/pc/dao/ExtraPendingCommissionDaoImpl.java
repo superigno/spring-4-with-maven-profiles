@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.pc.model.AppProperties;
+import com.pc.util.ReconUtil;
 
 /**
  * @author gino.q
@@ -64,7 +65,7 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao<Object,String[]> 
 	@Override
 	public long delete(String[] p) {
 		logger.info("Deleting record from extrapendingcommission table...");
-		final String SQL = "DELETE FROM extrapendingcommission WHERE id = ?";
+		final String SQL = "DELETE FROM extrapendingcommission WHERE id = ?;";
 		long rowsDeleted = 0;
 		
 		if (appProperties.isProductionMode()) {
@@ -73,10 +74,27 @@ public class ExtraPendingCommissionDaoImpl implements ReconDao<Object,String[]> 
 			} catch (Exception e) {
 				logger.error(e);
 			}
+		} else {
+			writeSqlToFile(SQL, p);
 		}
 						
 		logger.info("Total rows deleted: "+rowsDeleted);
 		return rowsDeleted;
+	}
+	
+	private void writeSqlToFile(String sql, Object[] params) {		
+		logger.info("Writing SQL to file...");
+		
+	    try {
+	    	String dirPath = appProperties.getAppDirectory()+"/sql";
+	    	String filename = "extrapendingcommission_"+ReconUtil.getTransId()+".sql";
+	    	String formattedSql = String.format(sql.replace("?", "%s"), params[0]);	    	
+	    	logger.info("Filename: {}", filename);
+			logger.info("SQL: {}", formattedSql);	    	
+			ReconUtil.appendToFile(dirPath, filename, formattedSql);
+		} catch (Exception e) {
+			logger.error("Error in writing SQL statement to file", e);
+		}	    
 	}
 
 	@Override

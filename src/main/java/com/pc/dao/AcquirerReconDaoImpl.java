@@ -41,13 +41,14 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		String[] merchantIds = (String[]) p[0];
 		String startDate = p[1].toString();
 		String endDate = p[2].toString();
+		boolean isMerchantIdEmpty = merchantIds == null || merchantIds.length == 0;
 		
 		logger.info("Looking for match in acquirertransaction table...");
 		logger.debug("Merchant IDs: "+Arrays.toString(merchantIds));
 		logger.debug("Settle Start Date: "+startDate);
 		logger.debug("Settle End Date: "+endDate);
 		
-		final String SQL = "SELECT a.id acquirer_id, "
+		String sql = "SELECT a.id acquirer_id, "
 				+ "a.card_number acquirer_card_number, "
 				+ "b.card_number settlement_card_number, "
 				+ "a.card_currency acquirer_card_currency, "
@@ -57,19 +58,24 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 				+ "	b.base_amount, " 
 				+ "	b.rrn, " 
 				+ " b.trx_id, "
-				+ " b.file_name "
+				+ " b.file_name, "
+				+ " a.trx_currency "
 				+ " FROM acquirertransaction a, settlementfile b "
 			    + " WHERE a.merchant_id = b.merchant_id "
 			    + " AND a.terminal_id = b.terminal_id "
 			    + " AND a.base_amount = b.base_amount "
 			    + " AND a.authorisation_code = b.authorisation_code "
 			    + " AND DATE(a.client_time) = DATE(b.terminal_transaction_time) "
-			    + " AND a.merchant_id IN (:merchant_id) "
-			    + " AND a.settle_time BETWEEN :start_date AND :end_date";
+			    + " AND a.settle_time BETWEEN :start_date AND :end_date "
+			    + " AND a.authorisation_code IS NOT NULL " 
+			    + " AND a.authorisation_code != '' ";
 		
 		List<String> ids = Arrays.asList(merchantIds);		
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("merchant_id", ids);
+		if (!isMerchantIdEmpty) {
+			sql = sql+" AND a.merchant_id IN (:merchant_id)";
+			params.addValue("merchant_id", ids);
+		}
 		params.addValue("start_date", startDate);
 		params.addValue("end_date", endDate);
 		
@@ -77,7 +83,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		List<AcquirerRecon> list = new ArrayList<>();
 		
 		try {
-			list = template.query(SQL, params, new AcquirerSettlementMapper());
+			list = template.query(sql, params, new AcquirerSettlementMapper());
 		}catch (Exception e) {
 			logger.error(e);
 		}
@@ -100,24 +106,31 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
 		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		
-		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ? AND card_number = ? AND card_currency = ?;";
+		boolean isDifferent = !t.getAcquirerCardNumber().equals(t.getSettlementCardNumber()) || !t.getAcquirerCardCurrency().equals(t.getSettlementCardCurrency());
 		int rowsUpdated = 0;
 		
-		Object[] params = new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId(), t.getAcquirerCardNumber(), t.getAcquirerCardCurrency()};
-		
-		if (appProperties.isProductionMode()) {
-			try {
-				rowsUpdated = jdbcTemplate.update(SQL, params);
-			} catch (Exception e) {
-				logger.error(e);
+		if (isDifferent) {		
+			final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ? AND card_number = ? AND card_currency = ?;";
+			
+			
+			Object[] params = new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId(), t.getAcquirerCardNumber(), t.getAcquirerCardCurrency()};
+			
+			if (appProperties.isProductionMode()) {
+				try {
+					rowsUpdated = jdbcTemplate.update(SQL, params);
+				} catch (Exception e) {
+					logger.error(e);
+				}
 			}
-		}
-		
-		logger.info("Row updated: "+rowsUpdated);
-		
-		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
-			log(t);
-			writeSqlToFile(SQL, params);
+			
+			logger.info("Row updated: "+rowsUpdated);
+			
+			if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
+				log(t);
+				writeSqlToFile(SQL, params);
+			}
+		} else {
+			logger.info("Values equal, skipped.");
 		}
 		
 		return rowsUpdated;
@@ -131,7 +144,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 	    	String dirPath = appProperties.getAppDirectory()+"/sql";
 	    	String filename = "acquirertransaction_"+ReconUtil.getTransId()+".sql";
 	    	String formattedSql = String.format(sql.replace("?", "%s"), "'"+params[0]+"'", "'"+params[1]+"'", params[2], "'"+params[3]+"'", "'"+params[4]+"'");	    	
-	    	logger.info("Filename: {}", dirPath);
+	    	logger.info("Filename: {}", filename);
 			logger.info("SQL: {}", formattedSql);	    	
 			ReconUtil.appendToFile(dirPath, filename, formattedSql);
 		} catch (Exception e) {
