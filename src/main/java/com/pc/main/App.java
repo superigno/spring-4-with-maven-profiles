@@ -4,9 +4,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +28,9 @@ public class App {
 	private static ReconService reconService;
 	
 	public static void main(String[] args) {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(new TyroRecon(), 0, props.getScanPeriodInMinutes(), TimeUnit.MINUTES);		
+		//ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		//scheduler.scheduleWithFixedDelay(new TyroRecon(), 0, props.getScanPeriodInMinutes(), TimeUnit.MINUTES);
+		new TyroRecon().run(); //run one time
 	}
 	
 	static {
@@ -53,66 +51,77 @@ public class App {
 			Path dir = Paths.get(filesDir);		
 			File[] files = dir.toFile().listFiles();
 			
-			logger.info("Scanning directory {} ...", filesDir);
+			logger.info("Scanning directory {} for settlement files...", filesDir);
 			logger.info("Files found: "+files.length);
 			
-			if (files.length > 0) {
-				
-				logger.info("**************************************** START ****************************************");
-				
-				ReconUtil.generateNewTransId();
-				logger.info("Generated transaction ID: {}", ReconUtil.getTransId());
-				
+			if (files.length > 0) {			
 				reconService.cleanupSettlementTable();
-				String sqlDir = props.getAppDirectory()+"/sql";
-				ReconUtil.cleanupDirectory(sqlDir);
-								
 				for (File file : files) {					
 					logger.info("Filename: "+file.getName());					
 			    	reconService.insertSettlementFileToDb(file);			    	
 			    	file.delete();
-			    }
+			    }				
+			}
 				
-				logger.info("-------------------------------------------------------------------------------------");
+			logger.info("**************************************** START ****************************************");
+			
+			long startTime = System.currentTimeMillis(); // Get the start Time
+	        long endTime = 0;
+	        
+	        logger.info("Start time: {}", startTime);
+			
+	        ReconUtil.generateNewTransId();
+			logger.info("Generated transaction ID: {}", ReconUtil.getTransId());
+			
+			//String sqlDir = props.getAppDirectory()+"/sql";
+			//ReconUtil.cleanupDirectory(sqlDir);
+			
+			logger.info("-------------------------------------------------------------------------------------");
+			
+			List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(props.getMerchantIds(), props.getSettlementStartDate(), props.getSettlementEndDate());
+			int acquirerRowsUpdated = 0;
+			int schemeSettleRowsUpdated = 0;
+			int pendingCommissionDeleted = 0;
+			int missingCommissionDeleted = 0;
+			
+			logger.info("Processing...");
+			
+			for (AcquirerRecon ar : list) {		
 				
-				List<AcquirerRecon> list = reconService.getAcquirerSettlementMappingList(props.getMerchantIds(), props.getSettlementStartDate(), props.getSettlementEndDate());
-				int acquirerRowsUpdated = 0;
-				int schemeSettleRowsUpdated = 0;
-				int pendingCommissionDeleted = 0;
-				int missingCommissionDeleted = 0;
+				acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
 				
-				for (AcquirerRecon ar : list) {		
+				/** Look for match in schemesettlement table (for opt-in transactions only) **/
+				if (!props.getBaseCurrency().equals(ar.getTrxCurrency())) {
+				
+					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
+							props.getSettlementStartDate(), props.getSettlementEndDate());
 					
-					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
-					
-					/** Look for match in schemesettlement table (for opt-in transactions only) **/
-					if (!props.getBaseCurrency().equals(ar.getTrxCurrency())) {
-					
-						List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
-								props.getSettlementStartDate(), props.getSettlementEndDate());
-						
-						for (SchemeSettleRecon s : schemeList) {
-							s.setAcquirerId(ar.getAcquirerId());
-							s.setSettlementFilename(ar.getSettlementFilename());
-							schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(s);
-							missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(s.getSchemeSettlementId());
-						}
-						
+					for (SchemeSettleRecon s : schemeList) {
+						s.setAcquirerId(ar.getAcquirerId());
+						s.setSettlementFilename(ar.getSettlementFilename());
+						schemeSettleRowsUpdated += reconService.updateSchemeSettlementDetails(s);
+						missingCommissionDeleted += reconService.deleteFromExtraMissingCommission(s.getSchemeSettlementId());
 					}
 					
-					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
-					
-					logger.info("-------------------------------------------------------------------------------------");					
-				}	
+				}
 				
-				logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
-				logger.info("Total Scheme Settlement rows updated: "+schemeSettleRowsUpdated);
-				logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
-				logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
-								
-				logger.info("**************************************** END ****************************************");
-				logger.info("");
-			}
+				pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
+				
+				logger.trace("-------------------------------------------------------------------------------------");					
+			}	
+			
+			logger.info("Total Acquirer rows updated: "+acquirerRowsUpdated);
+			logger.info("Total Scheme Settlement rows updated: "+schemeSettleRowsUpdated);
+			logger.info("Total Pending Commissions deleted: "+pendingCommissionDeleted);
+			logger.info("Total Missing Commissions deleted: "+missingCommissionDeleted);
+			
+			endTime = System.currentTimeMillis(); //Get the end Time
+
+		    logger.info("End time: {}", endTime);
+		    logger.info("Total duration (in secs): {}", (endTime-startTime)/1000);
+							
+			logger.info("**************************************** END ****************************************");
+			
 		}
 	
 	}

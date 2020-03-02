@@ -43,14 +43,14 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		String startDate = p[5];
 		String endDate = p[6];
 		
-		logger.info("Looking for match in schemesettlement table...");
-		logger.info("Merchant ID: {}", merchantId);
-		logger.info("Terminal ID: {}", terminalId);
-		logger.info("Base Amount: {}", baseAmount);
-		logger.info("Non DCC Reason Code: {}", rrn);
-		logger.info("Notes: {}", trxId);
-		logger.debug("Payment Start Date: "+startDate);
-		logger.debug("Payment End Date: "+endDate);
+		logger.trace("Looking for match in schemesettlement table...");
+		logger.trace("Merchant ID: {}", merchantId);
+		logger.trace("Terminal ID: {}", terminalId);
+		logger.trace("Base Amount: {}", baseAmount);
+		logger.trace("Non DCC Reason Code: {}", rrn);
+		logger.trace("Notes: {}", trxId);
+		logger.trace("Payment Start Date: "+startDate);
+		logger.trace("Payment End Date: "+endDate);
 		
 		final String SELECT_SQL = "SELECT id, trx_id, merchant_id, terminal_id, base_amount, nondcc_reason_code, notes " + 
 				"FROM schemesettlement " + 
@@ -70,7 +70,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 			logger.error(e);
 		}
 		
-		logger.info("Matches found: "+list.size());
+		logger.trace("Matches found: "+list.size());
 				
 		return list;
 	}
@@ -84,7 +84,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 	@Override
 	public long update(SchemeSettleRecon t) {
 		
-		logger.debug("Updating trx_id for {}",t);
+		logger.trace("Updating trx_id for {}",t);
 		
 		final String SQL = "UPDATE schemesettlement " + 
 				"SET trx_id = ? " + 
@@ -102,11 +102,10 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 			}
 		}
 		
-		logger.info("Rows updated: "+rowsUpdated);		
+		logger.trace("Rows updated: "+rowsUpdated);		
 		
 		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {			
-			
-			log(t);			
+			//log(t);			
 			writeSqlToFile(SQL, params);
 		}
 		
@@ -115,14 +114,14 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 	}
 	
 	private void writeSqlToFile(String sql, Object[] params) {
-		logger.info("Writing SQL to file...");
+		logger.trace("Writing SQL to file...");
 		
 	    try {
 	    	String dirPath = appProperties.getAppDirectory()+"/sql";
 	    	String filename = "schemesettlement_"+ReconUtil.getTransId()+".sql";
 	    	String formattedSql = String.format(sql.replace("?", "%s"), params[0], params[1]);
-	    	logger.info("Filename: {}", filename);
-	    	logger.info("SQL: {}", formattedSql);
+	    	logger.trace("Filename: {}", filename);
+	    	logger.trace("SQL: {}", formattedSql);
 			ReconUtil.appendToFile(dirPath, filename, formattedSql);
 		} catch (Exception e) {
 			logger.error("Error in writing SQL statement to file", e);
@@ -155,7 +154,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 
 	@Override
 	public void log(SchemeSettleRecon t) {
-		logger.info("Logging transaction...");
+		logger.trace("Logging transaction...");
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {

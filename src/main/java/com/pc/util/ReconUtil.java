@@ -1,6 +1,7 @@
 package com.pc.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -71,9 +72,8 @@ public class ReconUtil {
 	public static void appendToFile(String dir, String filename, StringBuffer str) throws IOException {
 		appendToFile(dir, filename, str.toString());
 	}
-
+	
 	public static void appendToFile(String dir, String filename, String str) throws IOException {
-		String textToAppend = str + "\n";
 		
 		File fileDir = new File(dir);
 		if (!fileDir.exists()) {
@@ -81,11 +81,12 @@ public class ReconUtil {
 		}
 		
 		Path path = Paths.get(dir + "\\" + filename);
-		if (Files.exists(path)) {
-			Files.write(path, textToAppend.getBytes(), StandardOpenOption.APPEND);
-		} else {
-			Files.write(path, textToAppend.getBytes(), StandardOpenOption.CREATE);
-		}
+		BufferedWriter bw = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);		
+		
+	    bw.write(str);
+	    bw.newLine();
+	    bw.close();
+		
 	}
 
 	private static String[] doParse(String line) {

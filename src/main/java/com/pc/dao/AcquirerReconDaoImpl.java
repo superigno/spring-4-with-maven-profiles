@@ -67,6 +67,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 			    + " AND a.authorisation_code = b.authorisation_code "
 			    + " AND DATE(a.client_time) = DATE(b.terminal_transaction_time) "
 			    + " AND a.settle_time BETWEEN :start_date AND :end_date "
+			    + " AND right(a.card_number,4) = right(b.card_number,4) "
 			    + " AND a.authorisation_code IS NOT NULL " 
 			    + " AND a.authorisation_code != '' ";
 		
@@ -102,9 +103,9 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 	@Override
 	public long update(AcquirerRecon t) {
 		
-		logger.debug("Updating card_number and card_currency for id='{}'", t.getAcquirerId());
-		logger.debug("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
-		logger.debug("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
+		logger.trace("Updating card_number and card_currency for id='{}'", t.getAcquirerId());
+		logger.trace("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
+		logger.trace("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		
 		boolean isDifferent = !t.getAcquirerCardNumber().equals(t.getSettlementCardNumber()) || !t.getAcquirerCardCurrency().equals(t.getSettlementCardCurrency());
 		int rowsUpdated = 0;
@@ -123,14 +124,14 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 				}
 			}
 			
-			logger.info("Row updated: "+rowsUpdated);
+			logger.trace("Row updated: "+rowsUpdated);
 			
 			if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
-				log(t);
+				//log(t);
 				writeSqlToFile(SQL, params);
 			}
 		} else {
-			logger.info("Values equal, skipped.");
+			logger.trace("Values equal, skipped.");
 		}
 		
 		return rowsUpdated;
@@ -138,14 +139,14 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 	}
 	
 	private void writeSqlToFile(String sql, Object[] params) {		
-		logger.info("Writing SQL to file...");
+		logger.trace("Writing SQL to file...");
 		
 	    try {
 	    	String dirPath = appProperties.getAppDirectory()+"/sql";
 	    	String filename = "acquirertransaction_"+ReconUtil.getTransId()+".sql";
 	    	String formattedSql = String.format(sql.replace("?", "%s"), "'"+params[0]+"'", "'"+params[1]+"'", params[2], "'"+params[3]+"'", "'"+params[4]+"'");	    	
-	    	logger.info("Filename: {}", filename);
-			logger.info("SQL: {}", formattedSql);	    	
+	    	logger.trace("Filename: {}", filename);
+			logger.trace("SQL: {}", formattedSql);	    	
 			ReconUtil.appendToFile(dirPath, filename, formattedSql);
 		} catch (Exception e) {
 			logger.error("Error in writing SQL statement to file", e);
@@ -178,7 +179,7 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 
 	@Override
 	public void log(AcquirerRecon t) {
-		logger.info("Logging transaction...");
+		logger.trace("Logging transaction...");
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String d = format.format(new Date());
 		try {

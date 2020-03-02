@@ -64,7 +64,7 @@ public class ExtraMissingCommissionDaoImpl implements ReconDao<Object,String[]> 
 
 	@Override
 	public long delete(String[] p) {
-		logger.info("Deleting record from extramissingcommission table...");
+		logger.trace("Deleting record from extramissingcommission table...");
 		final String SQL = "DELETE FROM extramissingcommission WHERE id = ?;";
 		long rowsDeleted = 0;
 		
@@ -78,19 +78,19 @@ public class ExtraMissingCommissionDaoImpl implements ReconDao<Object,String[]> 
 			writeSqlToFile(SQL, p);
 		}
 						
-		logger.info("Total rows deleted: "+rowsDeleted);
+		logger.trace("Total rows deleted: "+rowsDeleted);
 		return rowsDeleted;
 	}
 	
 	private void writeSqlToFile(String sql, Object[] params) {		
-		logger.info("Writing SQL to file...");
+		logger.trace("Writing SQL to file...");
 		
 	    try {
 	    	String dirPath = appProperties.getAppDirectory()+"/sql";
 	    	String filename = "extramissingcommission_"+ReconUtil.getTransId()+".sql";
 	    	String formattedSql = String.format(sql.replace("?", "%s"), params[0]);	    	
-	    	logger.info("Filename: {}", filename);
-			logger.info("SQL: {}", formattedSql);	    	
+	    	logger.trace("Filename: {}", filename);
+			logger.trace("SQL: {}", formattedSql);	    	
 			ReconUtil.appendToFile(dirPath, filename, formattedSql);
 		} catch (Exception e) {
 			logger.error("Error in writing SQL statement to file", e);
