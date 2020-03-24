@@ -88,7 +88,14 @@ public class App {
 			
 			for (AcquirerRecon ar : list) {		
 				
-				acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
+				boolean isDifferent = !ar.getAcquirerCardNumber().equals(ar.getSettlementCardNumber()) || !ar.getAcquirerCardCurrency().equals(ar.getSettlementCardCurrency());
+				
+				if (isDifferent) {
+					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
+					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());
+				} else {
+					logger.trace("Values equal, skipped.");
+				}
 				
 				/** Look for match in schemesettlement table (for opt-in transactions only) **/
 				if (!props.getBaseCurrency().equals(ar.getTrxCurrency())) {
@@ -104,8 +111,6 @@ public class App {
 					}
 					
 				}
-				
-				pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());						
 				
 				logger.trace("-------------------------------------------------------------------------------------");					
 			}	

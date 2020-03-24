@@ -107,31 +107,24 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 		logger.trace("Card number from '{}' to '{}'", t.getAcquirerCardNumber(), t.getSettlementCardNumber());
 		logger.trace("Card currency from '{}' to '{}'", t.getAcquirerCardCurrency(), t.getSettlementCardCurrency());
 		
-		boolean isDifferent = !t.getAcquirerCardNumber().equals(t.getSettlementCardNumber()) || !t.getAcquirerCardCurrency().equals(t.getSettlementCardCurrency());
-		int rowsUpdated = 0;
+		int rowsUpdated = 0;	
+		final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ? AND card_number = ? AND card_currency = ?;";
 		
-		if (isDifferent) {		
-			final String SQL = "UPDATE acquirertransaction SET card_number = ?, card_currency = ? WHERE id = ? AND card_number = ? AND card_currency = ?;";
-			
-			
-			Object[] params = new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId(), t.getAcquirerCardNumber(), t.getAcquirerCardCurrency()};
-			
-			if (appProperties.isProductionMode()) {
-				try {
-					rowsUpdated = jdbcTemplate.update(SQL, params);
-				} catch (Exception e) {
-					logger.error(e);
-				}
+		Object[] params = new Object[] {t.getSettlementCardNumber(), t.getSettlementCardCurrency(), t.getAcquirerId(), t.getAcquirerCardNumber(), t.getAcquirerCardCurrency()};
+		
+		if (appProperties.isProductionMode()) {
+			try {
+				rowsUpdated = jdbcTemplate.update(SQL, params);
+			} catch (Exception e) {
+				logger.error(e);
 			}
-			
-			logger.trace("Row updated: "+rowsUpdated);
-			
-			if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
-				//log(t);
-				writeSqlToFile(SQL, params);
-			}
-		} else {
-			logger.trace("Values equal, skipped.");
+		}
+		
+		logger.trace("Row updated: "+rowsUpdated);
+		
+		if (rowsUpdated > 0 || !appProperties.isProductionMode()) {
+			//log(t);
+			writeSqlToFile(SQL, params);
 		}
 		
 		return rowsUpdated;
