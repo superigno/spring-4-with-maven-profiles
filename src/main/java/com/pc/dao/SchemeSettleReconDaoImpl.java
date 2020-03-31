@@ -39,7 +39,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		String terminalId = p[1];
 		String baseAmount = p[2];
 		String rrn = p[3];
-		String trxId = p[4];
+		//String trxId = p[4];
 		String startDate = p[5];
 		String endDate = p[6];
 		
@@ -48,7 +48,7 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 		logger.trace("Terminal ID: {}", terminalId);
 		logger.trace("Base Amount: {}", baseAmount);
 		logger.trace("Non DCC Reason Code: {}", rrn);
-		logger.trace("Notes: {}", trxId);
+		//logger.trace("Notes: {}", trxId);
 		logger.trace("Payment Start Date: "+startDate);
 		logger.trace("Payment End Date: "+endDate);
 		
@@ -59,13 +59,13 @@ public class SchemeSettleReconDaoImpl implements ReconDao<SchemeSettleRecon,Stri
 				"AND terminal_id = ? " + 
 				"AND base_amount = ? " + 
 				"AND nondcc_reason_code = ? " + 
-				"AND notes = ? " +
+				//"AND notes = ? " +
 				"AND payment_date BETWEEN ? AND ?";
 		
 		List<SchemeSettleRecon> list = new ArrayList<>();
 		
 		try {
-			list = jdbcTemplate.query(SELECT_SQL, new Object[] {merchantId, terminalId, baseAmount, rrn, trxId, startDate, endDate}, new SchemeSettlementMapper());
+			list = jdbcTemplate.query(SELECT_SQL, new Object[] {merchantId, terminalId, baseAmount, rrn, startDate, endDate}, new SchemeSettlementMapper());
 		}catch (Exception e) {
 			logger.error(e);
 		}

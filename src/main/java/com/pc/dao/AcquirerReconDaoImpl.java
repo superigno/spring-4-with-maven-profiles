@@ -65,9 +65,9 @@ public class AcquirerReconDaoImpl implements ReconDao<AcquirerRecon, Object[]> {
 			    + " AND a.terminal_id = b.terminal_id "
 			    + " AND a.base_amount = b.base_amount "
 			    + " AND a.authorisation_code = b.authorisation_code "
-			    + " AND DATE(a.client_time) = DATE(b.terminal_transaction_time) "
-			    + " AND a.settle_time BETWEEN :start_date AND :end_date "
-			    + " AND right(a.card_number,4) = right(b.card_number,4) "
+			    //+ " AND DATE(a.client_time) = DATE(b.terminal_transaction_time) "
+			    + " AND DATE(a.settle_time) BETWEEN :start_date AND :end_date "
+			    + " AND RIGHT(a.card_number,4) = RIGHT(b.card_number,4) "
 			    + " AND a.authorisation_code IS NOT NULL " 
 			    + " AND a.authorisation_code != '' ";
 		
