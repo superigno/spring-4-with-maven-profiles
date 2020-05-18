@@ -26,8 +26,16 @@ public class AcquirerSettlementMapper implements RowMapper<AcquirerRecon> {
 		recon.setBaseAmount(rs.getString("base_amount"));
 		recon.setRrn(rs.getString("rrn"));
 		recon.setTrxId(rs.getString("trx_id"));
-		recon.setSettlementFilename(rs.getString("file_name"));
-		recon.setTrxCurrency(rs.getString("trx_currency"));
+		recon.setSettlementFilename(rs.getString("file_name"));		
+		recon.setAcquirerTrxCurrency(rs.getString("acquirer_trx_currency"));		
+		recon.setSettlementTrxCurrency(rs.getString("settlement_trx_currency"));		
+		recon.setAcquirerTrxAmount(rs.getString("acquirer_trx_amount"));		
+		recon.setSettlementTrxAmount(rs.getString("settlement_trx_amount"));
+		recon.setAcquirerExchangeRate(rs.getString("acquirer_exchange_rate"));		
+		recon.setSettlementExchangeRate(rs.getString("settlement_exchange_rate"));
+		recon.setAcquirerAuthorisationCode(rs.getString("acquirer_authorisation_code"));		
+		recon.setSettlementAuthorisationCode(rs.getString("settlement_authorisation_code"));
+		
 		return recon;
 	}
 	

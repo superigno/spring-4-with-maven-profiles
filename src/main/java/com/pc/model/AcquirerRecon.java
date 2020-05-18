@@ -16,14 +16,66 @@ public class AcquirerRecon {
 	private String baseAmount;
 	private String rrn;
 	private String trxId;
-	private String settlementFilename;
-	private String trxCurrency;
+	private String settlementFilename;	
+	private String acquirerTrxCurrency;
+	private String settlementTrxCurrency;
+	private String acquirerTrxAmount;
+	private String settlementTrxAmount;
+	private String acquirerExchangeRate;
+	private String settlementExchangeRate;
+	private String acquirerAuthorisationCode;
+	private String settlementAuthorisationCode;
 	
-	public String getTrxCurrency() {
-		return trxCurrency;
+	public String getAcquirerTrxCurrency() {
+		return acquirerTrxCurrency;
 	}
-	public void setTrxCurrency(String trxCurrency) {
-		this.trxCurrency = trxCurrency;
+	public void setAcquirerTrxCurrency(String acquirerTrxCurrency) {
+		this.acquirerTrxCurrency = acquirerTrxCurrency;
+	}
+	public String getSettlementTrxCurrency() {
+		if (settlementTrxCurrency == null || settlementTrxCurrency.trim().equals("")) {
+			return "AUD";
+		}
+		return settlementTrxCurrency;
+	}
+	public void setSettlementTrxCurrency(String settlementTrxCurrency) {
+		this.settlementTrxCurrency = settlementTrxCurrency;
+	}
+	public String getAcquirerTrxAmount() {
+		return acquirerTrxAmount;
+	}
+	public void setAcquirerTrxAmount(String acquirerTrxAmount) {
+		this.acquirerTrxAmount = acquirerTrxAmount;
+	}
+	public String getSettlementTrxAmount() {
+		return settlementTrxAmount;
+	}
+	public void setSettlementTrxAmount(String settlementTrxAmount) {
+		this.settlementTrxAmount = settlementTrxAmount;
+	}
+	public String getAcquirerExchangeRate() {
+		return acquirerExchangeRate;
+	}
+	public void setAcquirerExchangeRate(String acquirerExchangeRate) {
+		this.acquirerExchangeRate = acquirerExchangeRate;
+	}
+	public String getSettlementExchangeRate() {
+		return settlementExchangeRate;
+	}
+	public void setSettlementExchangeRate(String settlementExchangeRate) {
+		this.settlementExchangeRate = settlementExchangeRate;
+	}
+	public String getAcquirerAuthorisationCode() {
+		return acquirerAuthorisationCode;
+	}
+	public void setAcquirerAuthorisationCode(String acquirerAuthorisationCode) {
+		this.acquirerAuthorisationCode = acquirerAuthorisationCode;
+	}
+	public String getSettlementAuthorisationCode() {
+		return settlementAuthorisationCode;
+	}
+	public void setSettlementAuthorisationCode(String settlementAuthorisationCode) {
+		this.settlementAuthorisationCode = settlementAuthorisationCode;
 	}
 	public long getAcquirerId() {
 		return acquirerId;

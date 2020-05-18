@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pc.dao.AcquirerReconDaoImpl;
 import com.pc.dao.ReconDao;
 import com.pc.model.AcquirerRecon;
 import com.pc.model.SchemeSettleRecon;
@@ -20,7 +21,7 @@ import com.pc.util.ReconUtil;
 public class ReconServiceImpl implements ReconService {
 	
 	@Autowired
-	private ReconDao<AcquirerRecon,Object[]> acquirerReconDao;
+	private AcquirerReconDaoImpl acquirerReconDao;
 	
 	@Autowired
 	private ReconDao<SettlementInfo,String[]> settlementDao;
@@ -60,6 +61,10 @@ public class ReconServiceImpl implements ReconService {
 	@Override
 	public long updateAcquirerDetails(AcquirerRecon a) {
 		return acquirerReconDao.update(a);		
+	}
+	
+	public long updateAcquirerDetails2(AcquirerRecon a) {
+		return acquirerReconDao.update2(a);		
 	}
 
 	@Override

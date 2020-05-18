@@ -45,23 +45,23 @@ public class App {
 		@Override
 		public void run() {
 			
-			String appDirectory = props.getAppDirectory();
-			String filesDir = appDirectory+"/files";
-			
-			Path dir = Paths.get(filesDir);		
-			File[] files = dir.toFile().listFiles();
-			
-			logger.info("Scanning directory {} for settlement files...", filesDir);
-			logger.info("Files found: "+files.length);
-			
-			if (files.length > 0) {			
-				reconService.cleanupSettlementTable();
-				for (File file : files) {					
-					logger.info("Filename: "+file.getName());					
-			    	reconService.insertSettlementFileToDb(file);			    	
-			    	file.delete();
-			    }				
-			}
+//			String appDirectory = props.getAppDirectory();
+//			String filesDir = appDirectory+"/files";
+//			
+//			Path dir = Paths.get(filesDir);		
+//			File[] files = dir.toFile().listFiles();
+//			
+//			logger.info("Scanning directory {} for settlement files...", filesDir);
+//			logger.info("Files found: "+files.length);
+//			
+//			if (files.length > 0) {			
+//				reconService.cleanupSettlementTable();
+//				for (File file : files) {					
+//					logger.info("Filename: "+file.getName());					
+//			    	reconService.insertSettlementFileToDb(file);			    	
+//			    	file.delete();
+//			    }				
+//			}
 				
 			logger.info("**************************************** START ****************************************");
 			
@@ -88,9 +88,13 @@ public class App {
 			
 			for (AcquirerRecon ar : list) {		
 				
+				boolean acquirerLocalSettlementDcc = !props.getBaseCurrency().equals(ar.getSettlementTrxCurrency().trim()) && props.getBaseCurrency().equals(ar.getAcquirerTrxCurrency().trim()); 
 				boolean isDifferent = !ar.getAcquirerCardNumber().equals(ar.getSettlementCardNumber()) || !ar.getAcquirerCardCurrency().equals(ar.getSettlementCardCurrency());
 				
-				if (isDifferent) {
+				if (acquirerLocalSettlementDcc) {
+					acquirerRowsUpdated += reconService.updateAcquirerDetails2(ar);
+					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());					
+				} else if (isDifferent) {
 					acquirerRowsUpdated += reconService.updateAcquirerDetails(ar);
 					pendingCommissionDeleted += reconService.deleteFromExtraPendingCommission(ar.getAcquirerId());
 				} else {
@@ -98,7 +102,7 @@ public class App {
 				}
 				
 				/** Look for match in schemesettlement table (for opt-in transactions only) **/
-				if (!props.getBaseCurrency().equals(ar.getTrxCurrency())) {
+				if (!props.getBaseCurrency().equals(ar.getSettlementTrxCurrency().trim())) {
 				
 					List<SchemeSettleRecon> schemeList = reconService.getSchemeSettlementMappingList(ar.getMerchantId(), ar.getTerminalId(), ar.getBaseAmount(), ar.getRrn(), ar.getTrxId(), 
 							props.getSettlementStartDate(), props.getSettlementEndDate());
@@ -123,7 +127,7 @@ public class App {
 			endTime = System.currentTimeMillis(); //Get the end Time
 
 		    logger.info("End time: {}", endTime);
-		    logger.info("Total duration (in secs): {}", (endTime-startTime)/1000);
+		    logger.info("Total duration: {}mins", (endTime-startTime)/1000/60);
 							
 			logger.info("**************************************** END ****************************************");
 			
